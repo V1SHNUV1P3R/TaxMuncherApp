@@ -15,7 +15,7 @@ import {
   View,
 } from "react-native";
 import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import { supabase } from "../../utils/supabase";
 
 const theme = colors.dark;
 
@@ -33,28 +33,28 @@ export default function AppHeader() {
   // Read global state (we DON'T change it here, just read it)
 
 
-//   async function handleLogout() {
-//   // If a game is active, block logout
-//   if (gameRunning) {
-//     Alert.alert(
-//       "Game in progress",
-//       "Finish or stop your timer before logging out."
-//     );
-//     return; // stop function here
-//   }
+  async function handleLogout() {
+  // // If a game is active, block logout
+  // if (gameRunning) {
+  //   Alert.alert(
+  //     "Game in progress",
+  //     "Finish or stop your timer before logging out."
+  //   );
+  //   return; // stop function here
+  // }
 
-//   // Otherwise, proceed normally
-//   try {
-//     const { error } = await supabase.auth.signOut();
+  // Otherwise, proceed normally
+  try {
+    const { error } = await supabase.auth.signOut();
 
-//     if (error) {
-//       console.error("Logout error:", error);
-//       Alert.alert("Logout failed", error.message);
-//     }
-//   } catch (err: any) {
-//     Alert.alert("Logout failed", err?.message ?? String(err));
-//   }
-// }
+    if (error) {
+      console.error("Logout error:", error);
+      Alert.alert("Logout failed", error.message);
+    }
+  } catch (err: any) {
+    Alert.alert("Logout failed", err?.message ?? String(err));
+  }
+}
 
   return (
     <View style={styles.container}>
@@ -69,12 +69,7 @@ export default function AppHeader() {
       <View style={styles.rightContainer}>
         <TouchableOpacity
           style={styles.logoutButton}
-          onPress={() => {
-            Alert.alert(
-              "Logout",
-              "Are you sure you want to log out?"
-            );
-          }}
+          onPress={handleLogout}
         >
           <Ionicons
             name="log-out-outline"
