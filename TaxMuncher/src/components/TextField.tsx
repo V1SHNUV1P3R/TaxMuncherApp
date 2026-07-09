@@ -69,14 +69,15 @@ export default TextField;
 
 const styles = StyleSheet.create({
   container: {
-    width: "85%",
-    marginBottom: 16,
-  },
+    width: "100%",
+    marginBottom: 20,
+},
   toggleButton: {
     alignSelf: "flex-end",
     marginTop: 6,
   },
   toggleText: {
-    fontWeight: "600",
+    fontWeight: "700",
+    letterSpacing: 0.4,
   },
 });

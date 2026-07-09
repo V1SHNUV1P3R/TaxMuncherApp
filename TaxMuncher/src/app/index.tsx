@@ -18,13 +18,13 @@ import Auth from "../components/Auth";
   - If not logged in → show Auth UI
 */
 export default function Index() {
-    const router = useRouter();
+  const router = useRouter();
   const { session, isLoading } = useAuth();
 
   useEffect(() => {
     if (session?.user) {
       // Replace prevents going "back" to login screen
-      router.replace("/profile");
+      router.replace("/tabs/profile");
     }
   }, [router, session]);
 
@@ -37,9 +37,9 @@ export default function Index() {
     return null;
   }
   return (
-      <View style={{ flex: 1 }}>
-        <AppHeader />
-        <Auth />
-      </View>
+    <View style={{ flex: 1 }}>
+      <AppHeader />
+      <Auth />
+    </View>
   );
 }

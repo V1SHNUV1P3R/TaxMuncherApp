@@ -1,28 +1,45 @@
 const colors = {
   dark: {
-    background: "#0B132B",
-    surface: "#1C2541",
-    card: "#24344F",
+    // Backgrounds
+    background: "#222E50",
+    surface: "#3E5168",
+    card: "#597380",
 
-    primary: "#5BC0BE",
-    secondary: "#3A506B",
+    // Primary UI Colors
+    primary: "#8FB7B0",
+    secondary: "#C1D3C8",
 
-    primaryText: "#FFFFFF",
-    secondaryText: "#AFC5D8",
+    // Text
+    primaryText: "#F3EFE0",
+    secondaryText: "#C1D3C8",
+    mutedText: "#8FB7B0",
 
-    border: "#3A506B",
+    // Borders
+    border: "#597380",
 
-    inputBackground: "#16213A",
+    // Inputs
+    inputBackground: "#3E5168",
+    inputBorder: "#597380",
 
-    buttonPrimary: "#5BC0BE",
-    buttonSecondary: "#3A506B",
-    buttonDanger: "#FF6B6B",
+    // Buttons
+    buttonPrimary: "#8FB7B0",
+    buttonSecondary: "#597380",
+    buttonDanger: "#90605E",
+    buttonText: "#222E50",
 
-    buttonText: "#0B132B",
+    // Status
+    success: "#8FB7B0",
+    warning: "#E9B6B4",
+    danger: "#90605E",
 
-    success: "#5BC0BE",
-    warning: "#FFC857",
-    danger: "#FF6B6B",
+    // Misc
+    overlay: "rgba(34,46,80,0.75)",
+    shadow: "#310906",
+
+    // Extra Accent Colors
+    accentLight: "#E9B6B4",
+    accentDark: "#633533",
+    accentDeep: "#310906",
   },
 };
 

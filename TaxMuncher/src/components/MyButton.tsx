@@ -1,6 +1,9 @@
 import React from "react";
 import { Text, TouchableHighlight, View } from "react-native";
 import defaultStyles from "../styles/defaultStyles";
+import colors from "../styles/colors";
+
+const theme = colors.dark;
 
 type propsType = {
   title: string;
@@ -23,14 +26,15 @@ const MyButton: React.FC<propsType> = ({
   disabled,
 }) => {
   return (
-    <View>
+    <View style={{ width: "100%" }}>
       <TouchableHighlight
-        style={[
-          defaultStyles.primaryButton,
-          color && { backgroundColor: color },
-          disabled && { opacity: 0.5 }, // 👈 visual feedback
-        ]}
-        underlayColor={underlayColor}
+    style={[
+        defaultStyles.primaryButton,
+        { width: "100%" },
+        color && { backgroundColor: color },
+        disabled && { opacity: 0.5 },
+    ]}
+       underlayColor={theme.secondary}
         onPress={disabled ? undefined : onPress} // 👈 extra safety
         disabled={disabled}
       >

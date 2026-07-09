@@ -43,6 +43,18 @@ const defaultStyles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  centerHorizontal: {
+  alignItems: "center",
+},
+
+centerVertical: {
+  justifyContent: "center",
+},
+
+centerBoth: {
+  justifyContent: "center",
+  alignItems: "center",
+},
 
   flex: {
     flex: 1,
@@ -182,24 +194,31 @@ const defaultStyles = StyleSheet.create({
   // ==========================
 
   input: {
-    backgroundColor: theme.inputBackground,
+    backgroundColor: theme.surface,
     color: theme.primaryText,
 
-    borderRadius: 16,
+    borderRadius: 18,
 
     paddingHorizontal: 18,
-    paddingVertical: 15,
+    paddingVertical: 16,
 
     fontSize: 16,
 
-    borderWidth: 1,
-    borderColor: theme.border,
-  },
+    borderWidth: 1.5,
+    borderColor: theme.inputBorder,
+},
 
   inputFocused: {
-    borderColor: theme.buttonPrimary,
+    borderColor: theme.primary,
+
     borderWidth: 2,
-  },
+
+    shadowColor: theme.primary,
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+
+    elevation: 6,
+},
 
   textArea: {
     backgroundColor: theme.inputBackground,
@@ -374,6 +393,77 @@ const defaultStyles = StyleSheet.create({
     color: theme.danger,
     fontWeight: "700",
   },
+  startingContainer: {
+    flex: 1,
+    backgroundColor: theme.background,
+
+    justifyContent: "center",
+
+    paddingHorizontal: 28,
+},
+
+authLogoContainer: {
+    alignItems: "center",
+    marginBottom: 48,
+},
+
+startingTitle: {
+    width: 110,
+    height: 110,
+    resizeMode: "contain",
+
+    marginBottom: 18,
+},
+
+// heroTitle: {
+//     fontSize: 34,
+//     fontWeight: "800",
+//     color: theme.primaryText,
+
+//     textAlign: "center",
+// },
+
+authSubtitle: {
+    color: theme.secondaryText,
+
+    fontSize: 16,
+
+    textAlign: "center",
+
+    marginTop: 10,
+
+    lineHeight: 24,
+
+    marginBottom: 40,
+},
+
+passwordText: {
+    color: theme.secondaryText,
+
+    fontSize: 13,
+
+    textAlign: "center",
+
+    marginBottom: 24,
+
+    marginTop: -4,
+},
+
+buttonSpacing: {
+    marginTop: 16,
+},
+
+authFooter: {
+    marginTop: 42,
+
+    alignItems: "center",
+},
+
+footerText: {
+    color: theme.secondaryText,
+
+    fontSize: 13,
+},
 });
 
 export default defaultStyles;
