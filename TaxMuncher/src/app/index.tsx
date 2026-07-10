@@ -24,7 +24,7 @@ export default function Index() {
   useEffect(() => {
     if (session?.user) {
       // Replace prevents going "back" to login screen
-      router.replace("/profile");
+      router.replace("/tabs/profile");
     }
   }, [router, session]);
 

@@ -21,7 +21,6 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
 
   const router = useRouter();
   const themeMK1 = colors.dark;
-  const themeMK2 = colors.light;
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -68,7 +67,7 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
         // Tool: Microsoft Copilot (GitHub Copilot)
         // Date: 03-19-26
         // Purpose: Have it fix an issue with the router not working after login.
-    router.push("/profile");
+    router.push("/tabs/profile");
     }
   }
 
@@ -83,7 +82,7 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
       // Tool: Microsoft Copilot (GitHub Copilot)
       // Date: 03-19-26
       // Purpose: Have it fix an issue with the router not working after login.
-      router.push("/profile");
+      router.push("/tabs/profile");
     }
   }
 
@@ -112,34 +111,95 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
   };
 
   return (
-    <View style={defaultStyles.startingContainer}>
-      <TextField placeholder="Email" value={email} onChangeText={setEmail} />
+  <View style={defaultStyles.screen}>
+    <View style={[defaultStyles.flex, defaultStyles.center]}>
 
-      <TextField
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        isPassword
-      />
-      <Text style={defaultStyles.passwordText}>
-        Password needs to be greater than 6 characters & have at least 1 number.
+      <Text style={defaultStyles.heroTitle}>
+        Receipt Tracker
       </Text>
 
-      <MyButton
-        title="Sign Up"
-        onPress={signUpWithEmail}
-        color={themeMK1.accentBlue}
-      />
-      <MyButton
-        title="Login"
-        onPress={signInWithEmail}
-        color={themeMK1.accentBlue}
-      />
+      <Text
+        style={[
+          defaultStyles.subheading,
+          {
+            textAlign: "center",
+            marginTop: 10,
+            marginBottom: 40,
+          },
+        ]}
+      >
+        Sign in to continue managing your receipts and expenses.
+      </Text>
+
+      <View
+        style={[
+          defaultStyles.card,
+          {
+            width: "100%",
+            maxWidth: 420,
+          },
+        ]}
+      >
+        <Text style={defaultStyles.caption}>Email</Text>
+
+        <View style={{ marginTop: 8, marginBottom: 18 }}>
+          <TextField
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+          />
+        </View>
+
+        <Text style={defaultStyles.caption}>Password</Text>
+
+        <View style={{ marginTop: 8 }}>
+          <TextField
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            isPassword
+          />
+        </View>
+
+        <Text
+          style={[
+            defaultStyles.small,
+            {
+              marginBottom: 24,
+              marginTop: 4,
+            },
+          ]}
+        >
+          Password must contain at least 6 characters and one number.
+        </Text>
+
+        <View style={{ gap: 14 }}>
+          <MyButton
+            title="Login"
+            onPress={signInWithEmail}
+            color={themeMK1.buttonPrimary}
+          />
+
+          <MyButton
+            title="Create Account"
+            onPress={signUpWithEmail}
+            color={themeMK1.secondary}
+            textColor={themeMK1.primaryText}
+          />
+        </View>
+      </View>
 
       <Image
         source={require("@/assets/images/adaptive-icon.png")}
-        style={defaultStyles.startingTitle}
+        style={{
+          width: 90,
+          height: 90,
+          marginTop: 35,
+          opacity: 0.9,
+        }}
       />
+
     </View>
-  );
+  </View>
+);
 }

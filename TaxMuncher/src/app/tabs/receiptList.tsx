@@ -8,7 +8,14 @@ import { useRouter } from "expo-router";
 
 import { useCallback, useState } from "react";
 
-import { ActivityIndicator, FlatList, Image, Text, View, TouchableOpacity } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const theme = colors.dark;
 
@@ -108,7 +115,7 @@ export default function ReceiptList() {
         >
           <MyButton
             title="+ Add"
-            onPress={() => router.push("/addReceipt")}
+            onPress={() => router.push("../addReceipt")}
             color={theme.primary}
           />
         </View>
@@ -154,232 +161,169 @@ export default function ReceiptList() {
             </Text>
           </View>
         )}
+        renderItem={({ item }) => (
+          <TouchableOpacity
+            activeOpacity={0.9}
+            // onPress={() =>
+            //     router.push({
+            //         pathname: "/receiptDetails",
+            //         params: {
+            //             id: item.id,
+            //         },
+            //     })
+            // }
+            style={{
+              backgroundColor: theme.surface,
+              borderRadius: 22,
+              padding: 18,
+              marginBottom: 18,
 
-      renderItem={({ item }) => (
+              borderWidth: 1,
+              borderColor: theme.border,
+            }}
+          >
+            <View style={defaultStyles.rowBetween}>
+              <View style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    fontSize: 22,
+                    fontWeight: "700",
+                    color: theme.primaryText,
+                  }}
+                >
+                  {item.merchant_name}
+                </Text>
 
-<TouchableOpacity
-    activeOpacity={0.9}
-    // onPress={() =>
-    //     router.push({
-    //         pathname: "/receiptDetails",
-    //         params: {
-    //             id: item.id,
-    //         },
-    //     })
-    // }
-    style={{
-        backgroundColor: theme.surface,
-        borderRadius: 22,
-        padding: 18,
-        marginBottom: 18,
+                <Text
+                  style={{
+                    color: theme.secondaryText,
+                    marginTop: 3,
+                  }}
+                >
+                  {item.payment_method}
+                </Text>
+              </View>
 
-        borderWidth: 1,
-        borderColor: theme.border,
-    }}
->
+              <Text
+                style={{
+                  fontSize: 24,
+                  fontWeight: "800",
+                  color: theme.primary,
+                }}
+              >
+                ${Number(item.total).toFixed(2)}
+              </Text>
+            </View>
 
-<View style={defaultStyles.rowBetween}>
+            <View
+              style={{
+                marginVertical: 16,
+                height: 1,
+                backgroundColor: theme.border,
+              }}
+            />
 
-<View style={{ flex: 1 }}>
+            <View style={defaultStyles.rowBetween}>
+              <View>
+                <Text style={defaultStyles.caption}>Purchase Date</Text>
 
-<Text
-style={{
-fontSize:22,
-fontWeight:"700",
-color:theme.primaryText,
-}}
->
+                <Text style={defaultStyles.body}>{item.purchase_date}</Text>
+              </View>
 
-{item.merchant_name}
+              <View
+                style={{
+                  backgroundColor: theme.secondary,
+                  paddingHorizontal: 14,
+                  paddingVertical: 6,
+                  borderRadius: 20,
+                }}
+              >
+                <Text
+                  style={{
+                    color: "white",
+                    fontWeight: "700",
+                  }}
+                >
+                  {item.payment_method}
+                </Text>
+              </View>
+            </View>
 
-</Text>
+            <View
+              style={{
+                marginTop: 18,
+              }}
+            >
+              <View style={defaultStyles.rowBetween}>
+                <Text style={defaultStyles.caption}>Subtotal</Text>
 
-<Text
-style={{
-color:theme.secondaryText,
-marginTop:3,
-}}
->
+                <Text style={defaultStyles.body}>
+                  ${Number(item.subtotal).toFixed(2)}
+                </Text>
+              </View>
 
-{item.payment_method}
+              <View style={[defaultStyles.rowBetween, { marginTop: 8 }]}>
+                <Text style={defaultStyles.caption}>Sales Tax</Text>
 
-</Text>
+                <Text style={defaultStyles.body}>
+                  ${Number(item.sales_tax).toFixed(2)}
+                </Text>
+              </View>
 
-</View>
+              <View style={[defaultStyles.rowBetween, { marginTop: 8 }]}>
+                <Text
+                  style={{
+                    fontWeight: "700",
+                    fontSize: 17,
+                    color: theme.primaryText,
+                  }}
+                >
+                  Total
+                </Text>
 
-<Text
-style={{
-fontSize:24,
-fontWeight:"800",
-color:theme.primary,
-}}
->
+                <Text
+                  style={{
+                    fontWeight: "800",
+                    fontSize: 18,
+                    color: theme.primary,
+                  }}
+                >
+                  ${Number(item.total).toFixed(2)}
+                </Text>
+              </View>
+            </View>
 
-${Number(item.total).toFixed(2)}
+            {item.image_url && (
+              <View
+                style={{
+                  marginTop: 20,
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <Image
+                  source={{ uri: item.image_url }}
+                  style={{
+                    width: 80,
+                    height: 80,
+                    borderRadius: 14,
+                  }}
+                  resizeMode="cover"
+                />
 
-</Text>
-
-</View>
-
-<View
-style={{
-marginVertical:16,
-height:1,
-backgroundColor:theme.border,
-}}
-/>
-
-<View style={defaultStyles.rowBetween}>
-
-<View>
-
-<Text style={defaultStyles.caption}>
-Purchase Date
-</Text>
-
-<Text style={defaultStyles.body}>
-{item.purchase_date}
-</Text>
-
-</View>
-
-<View
-style={{
-backgroundColor:theme.secondary,
-paddingHorizontal:14,
-paddingVertical:6,
-borderRadius:20,
-}}
->
-
-<Text
-style={{
-color:"white",
-fontWeight:"700",
-}}
->
-
-{item.payment_method}
-
-</Text>
-
-</View>
-
-</View>
-
-<View
-style={{
-marginTop:18,
-}}
->
-
-<View
-style={defaultStyles.rowBetween}
->
-
-<Text style={defaultStyles.caption}>
-Subtotal
-</Text>
-
-<Text style={defaultStyles.body}>
-${Number(item.subtotal).toFixed(2)}
-</Text>
-
-</View>
-
-<View
-style={[
-defaultStyles.rowBetween,
-{marginTop:8}
-]}
->
-
-<Text style={defaultStyles.caption}>
-Sales Tax
-</Text>
-
-<Text style={defaultStyles.body}>
-${Number(item.sales_tax).toFixed(2)}
-</Text>
-
-</View>
-
-<View
-style={[
-defaultStyles.rowBetween,
-{marginTop:8}
-]}
->
-
-<Text
-style={{
-fontWeight:"700",
-fontSize:17,
-color:theme.primaryText,
-}}
->
-Total
-</Text>
-
-<Text
-style={{
-fontWeight:"800",
-fontSize:18,
-color:theme.primary,
-}}
->
-
-${Number(item.total).toFixed(2)}
-
-</Text>
-
-</View>
-
-</View>
-
-{item.image_url && (
-
-<View
-style={{
-marginTop:20,
-flexDirection:"row",
-alignItems:"center",
-justifyContent:"space-between",
-}}
->
-
-<Image
-
-source={{ uri:item.image_url }}
-
-style={{
-width:80,
-height:80,
-borderRadius:14,
-}}
-
-resizeMode="cover"
-
-/>
-
-<Text
-style={{
-fontSize:24,
-color:theme.primary,
-}}
->
-
-›
-
-</Text>
-
-</View>
-
-)}
-
-</TouchableOpacity>
-
-)}
+                <Text
+                  style={{
+                    fontSize: 24,
+                    color: theme.primary,
+                  }}
+                >
+                  ›
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
       />
     </View>
   );

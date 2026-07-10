@@ -44,12 +44,11 @@ export default function TabsLayout() {
             />
           ),
         }}
-        initialParams={{ name, activity }}
       />
       <Tabs.Screen
-        name="family"
+        name="receiptList"
         options={{
-          headerTitle: name + "'s Family",
+          headerTitle:"All Receipts",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "people" : "people-outline"}
@@ -58,12 +57,11 @@ export default function TabsLayout() {
             />
           ),
         }}
-        initialParams={{ name, activity }}
       />
-      <Tabs.Screen
-        name="school"
+      {/* <Tabs.Screen
+        name="taxDetails"
         options={{
-          headerTitle: "School Activity: " + activity,
+          headerTitle: "Tax Details",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "school" : "school-outline"}
@@ -72,8 +70,7 @@ export default function TabsLayout() {
             />
           ),
         }}
-        initialParams={{ name, activity }}
-      />
+      /> */}
     </Tabs>
   );
 }

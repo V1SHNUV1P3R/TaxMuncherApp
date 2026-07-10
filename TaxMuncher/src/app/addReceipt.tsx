@@ -11,12 +11,12 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 
 import {
-    Alert,
-    Image,
-    ScrollView,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 const theme = colors.dark;
@@ -74,7 +74,6 @@ export default function AddReceipt() {
     const response = await fetch(image);
 
     const blob = await response.blob();
-
     const fileName = `${Date.now()}.jpg`;
 
     const { error } = await supabase.storage
