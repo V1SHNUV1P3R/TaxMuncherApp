@@ -3,14 +3,14 @@ import colors from "@/styles/colors";
 import defaultStyles from "@/styles/defaultStyles";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
-    Alert,
-    AppState,
-    AppStateStatus,
-    Image,
-    Text,
-    View,
+  Alert,
+  AppState,
+  AppStateStatus,
+  Image,
+  Text,
+  View,
 } from "react-native";
 import MyButton from "./MyButton";
 import TextField from "./TextField";
@@ -21,6 +21,7 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
 
   const router = useRouter();
   const themeMK1 = colors.dark;
+  const themeMK2 = colors.light;
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {
@@ -62,12 +63,12 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
       if (error) {
         Alert.alert(error.message);
       }
-
-      // AI Assistance Used
-      // Tool: Microsoft Copilot (GitHub Copilot)
-      // Date: 03-19-26
-      // Purpose: Have it fix an issue with the router not working after login.
-      router.push("/tabs/profile");
+      
+        // AI Assistance Used
+        // Tool: Microsoft Copilot (GitHub Copilot)
+        // Date: 03-19-26
+        // Purpose: Have it fix an issue with the router not working after login.
+    router.push("/profile");
     }
   }
 
@@ -82,7 +83,7 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
       // Tool: Microsoft Copilot (GitHub Copilot)
       // Date: 03-19-26
       // Purpose: Have it fix an issue with the router not working after login.
-      router.push("/tabs/profile");
+      router.push("/profile");
     }
   }
 
@@ -112,19 +113,6 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
 
   return (
     <View style={defaultStyles.startingContainer}>
-      <View style={defaultStyles.authLogoContainer}>
-        <Image
-          source={require("@/assets/images/adaptive-icon.png")}
-          style={defaultStyles.startingTitle}
-        />
-
-        <Text style={defaultStyles.heroTitle}>ReceiptAI</Text>
-
-        <Text style={defaultStyles.authSubtitle}>
-          AI-powered receipt scanning, expense tracking, and tax organization.
-        </Text>
-      </View>
-
       <TextField placeholder="Email" value={email} onChangeText={setEmail} />
 
       <TextField
@@ -133,29 +121,25 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
         onChangeText={setPassword}
         isPassword
       />
-
       <Text style={defaultStyles.passwordText}>
-        Password must contain at least 6 characters and one number.
+        Password needs to be greater than 6 characters & have at least 1 number.
       </Text>
 
       <MyButton
+        title="Sign Up"
+        onPress={signUpWithEmail}
+        color={themeMK1.accentBlue}
+      />
+      <MyButton
         title="Login"
         onPress={signInWithEmail}
-        color={themeMK1.buttonPrimary}
+        color={themeMK1.accentBlue}
       />
 
-      <View style={defaultStyles.buttonSpacing} />
-
-      <MyButton
-        title="Create Account"
-        onPress={signUpWithEmail}
-        color={themeMK1.buttonSecondary}
-        textColor={themeMK1.primaryText}
+      <Image
+        source={require("@/assets/images/adaptive-icon.png")}
+        style={defaultStyles.startingTitle}
       />
-
-      <View style={defaultStyles.authFooter}>
-        <Text style={defaultStyles.footerText}>Secure • AI Powered • Fast</Text>
-      </View>
     </View>
   );
 }
