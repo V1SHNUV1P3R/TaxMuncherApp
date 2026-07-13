@@ -5,21 +5,21 @@
 // Purpose: Had it fix obscure issues while also cleaning up the code to make it
 //  easier to read and maintain.
 // Notes: Modified error handling and added validation after testing
-import { useAuth } from "@/components/AuthProvider";
-import MyButton from "@/components/MyButton";
-import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import { useAuth } from "@/src/components/AuthProvider";
+import MyButton from "@/src/components/MyButton";
+import colors from "@/src/styles/colors";
+import defaultStyles from "@/src/styles/defaultStyles";
 import { supabase } from "@/utils/supabase";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    Image,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  Image,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 // const background = require("../../assets/SFX/blooketcafetheme.mp3");
 import * as ImagePicker from "expo-image-picker";

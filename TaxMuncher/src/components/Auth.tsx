@@ -1,6 +1,6 @@
 // Auth UI component
-import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import colors from "@/src/styles/colors";
+import defaultStyles from "@/src/styles/defaultStyles";
 import { supabase } from "@/utils/supabase";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -21,6 +21,7 @@ export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
 
   const router = useRouter();
   const themeMK1 = colors.dark;
+  const themeMK2 = colors.light;
 
   useEffect(() => {
     const handleAppStateChange = (nextState: AppStateStatus) => {

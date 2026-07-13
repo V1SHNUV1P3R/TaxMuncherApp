@@ -1,18 +1,18 @@
-import { useAuth } from "@/components/AuthProvider";
-import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import { useAuth } from "@/src/components/AuthProvider";
+import colors from "@/src/styles/colors";
+import defaultStyles from "@/src/styles/defaultStyles";
 import { supabase } from "@/utils/supabase";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    ActivityIndicator,
-    Alert,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  ActivityIndicator,
+  Alert,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
 
 type ProfileData = {

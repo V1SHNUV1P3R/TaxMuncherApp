@@ -1,9 +1,10 @@
-import colors from "@/styles/colors";
+import colors from "@/src/styles/colors";
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs, useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 
-const theme = colors.dark;
+const themeMK1 = colors.dark;
+const themeMK2 = colors.light;
 
 export default function TabsLayout() {
   const { name, activity } = useLocalSearchParams(); // Retrieve passed data
@@ -18,16 +19,16 @@ export default function TabsLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.buttonPrimary,
-        tabBarInactiveTintColor: theme.secondaryText,
+        tabBarActiveTintColor: themeMK1.buttonPrimary,
+        tabBarInactiveTintColor: themeMK1.secondaryText,
         headerStyle: {
-          backgroundColor: theme.surface,
+          backgroundColor: themeMK1.surface,
         },
         headerShadowVisible: false,
-        headerTintColor: theme.primaryText,
+        headerTintColor: themeMK1.primaryText,
         tabBarStyle: {
-          backgroundColor: theme.background,
-          borderTopColor: theme.border,
+          backgroundColor: themeMK1.background,
+          borderTopColor: themeMK1.border,
           borderTopWidth: 1,
         },
       }}

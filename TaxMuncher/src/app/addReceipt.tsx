@@ -1,8 +1,8 @@
-import { useAuth } from "@/components/AuthProvider";
-import MyButton from "@/components/MyButton";
-import TextField from "@/components/TextField";
-import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import { useAuth } from "@/src/components/AuthProvider";
+import MyButton from "@/src/components/MyButton";
+import TextField from "@/src/components/TextField";
+import colors from "@/src/styles/colors";
+import defaultStyles from "@/src/styles/defaultStyles";
 import { supabase } from "@/utils/supabase";
 
 import * as ImagePicker from "expo-image-picker";

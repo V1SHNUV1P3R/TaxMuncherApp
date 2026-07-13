@@ -14,7 +14,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import colors from "@/styles/colors";
+import colors from "@/src/styles/colors";
 import { supabase } from "../../utils/supabase";
 
 const theme = colors.dark;

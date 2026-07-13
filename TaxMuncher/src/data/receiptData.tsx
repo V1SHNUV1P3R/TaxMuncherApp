@@ -3,15 +3,13 @@ export type Receipt = {
 
   profile_id: string;
 
-  merchant: string;
+  merchant_name: string;
 
   purchase_date: string;
 
-  purchase_time: string;
-
   subtotal: number;
 
-  tax: number;
+  sales_tax: number;
 
   total: number;
 
@@ -19,7 +17,11 @@ export type Receipt = {
 
   category: string;
 
-  image_url: string;
+  notes?: string;
+
+  image_url?: string;
+
+  ai_processed?: boolean;
 
   created_at?: string;
 };

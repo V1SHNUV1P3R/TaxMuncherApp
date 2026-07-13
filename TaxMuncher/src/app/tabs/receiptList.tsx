@@ -1,10 +1,10 @@
-import { useAuth } from "@/components/AuthProvider";
-import MyButton from "@/components/MyButton";
-import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import { useAuth } from "@/src/components/AuthProvider";
+import MyButton from "@/src/components/MyButton";
+import colors from "@/src/styles/colors";
 import { supabase } from "@/utils/supabase";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
+import defaultStyles from "@/src/styles/defaultStyles";
 
 import { useCallback, useState } from "react";
 

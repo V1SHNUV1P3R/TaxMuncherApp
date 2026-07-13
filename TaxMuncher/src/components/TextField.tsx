@@ -13,8 +13,8 @@ import {
   View,
 } from "react-native";
 
-import colors from "@/styles/colors";
-import defaultStyles from "@/styles/defaultStyles";
+import colors from "@/src/styles/colors";
+import defaultStyles from "@/src/styles/defaultStyles";
 
 const theme = colors.dark;
 

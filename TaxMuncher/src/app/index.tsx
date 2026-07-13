@@ -3,8 +3,8 @@
 // Date: 1-22-26
 // Link: https://chatgpt.com/share/696a68f7-ba44-8012-b94f-7356a5349876
 // Purpose: Cleaned up some code that wasn't needed(Deleted the useRouter)
-import AppHeader from "@/components/AppHeader";
-import { useAuth } from "@/components/AuthProvider";
+import AppHeader from "/Users/Owner/Documents/GitHub/TaxMuncherApp/TaxMuncher/src/components/AppHeader";
+import { useAuth } from "/Users/Owner/Documents/GitHub/TaxMuncherApp/TaxMuncher/src/components/AuthProvider";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
