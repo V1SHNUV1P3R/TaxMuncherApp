@@ -93,6 +93,29 @@ export default function SettingsScreen() {
       style={defaultStyles.container}
       contentContainerStyle={styles.content}
     >
+      {/* Back Button and Title Container */}
+      <View style={styles.topNavigationHeader}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              // Fallback option if no navigation history exists
+              router.replace("/tabs/profile");
+            }
+          }}
+          activeOpacity={0.7}
+        >
+          <Ionicons
+            name="arrow-back"
+            size={24}
+            color={colors.dark.primaryText}
+          />
+        </TouchableOpacity>
+        <Text style={defaultStyles.heroTitle}>Settings</Text>
+      </View>
+
       <View style={styles.headerCard}>
         <View style={styles.avatarBadge}>
           <Ionicons
@@ -102,8 +125,12 @@ export default function SettingsScreen() {
           />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={defaultStyles.heroTitle}>Settings</Text>
-          <Text style={[defaultStyles.subheading, { marginTop: 4 }]}>
+          <Text style={[defaultStyles.body, { fontWeight: "700" }]}>
+            Account Preferences
+          </Text>
+          <Text
+            style={[defaultStyles.subheading, { marginTop: 4, fontSize: 14 }]}
+          >
             Keep your account details up to date in one place.
           </Text>
         </View>
@@ -147,6 +174,17 @@ const styles = StyleSheet.create({
   content: {
     padding: 20,
     paddingBottom: 40,
+  },
+  topNavigationHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 20,
+    gap: 12,
+  },
+  backButton: {
+    padding: 8,
+    marginLeft: -8, // Shifts interactive footprint out slightly to align perfectly visually
+    borderRadius: 8,
   },
   headerCard: {
     backgroundColor: colors.dark.surface,

@@ -3,8 +3,8 @@
 // Date: 1-22-26
 // Link: https://chatgpt.com/share/696a68f7-ba44-8012-b94f-7356a5349876
 // Purpose: Cleaned up some code that wasn't needed(Deleted the useRouter)
-import AppHeader from "/Users/Owner/Documents/GitHub/TaxMuncherApp/TaxMuncher/src/components/AppHeader";
-import { useAuth } from "/Users/Owner/Documents/GitHub/TaxMuncherApp/TaxMuncher/src/components/AuthProvider";
+import AppHeader from "@/src/components/AppHeader";
+import { useAuth } from "@/src/components/AuthProvider";
 import { useRouter } from "expo-router";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
@@ -18,28 +18,27 @@ import Auth from "../components/Auth";
   - If not logged in → show Auth UI
 */
 export default function Index() {
-    const router = useRouter();
+  const router = useRouter();
   const { session, isLoading } = useAuth();
 
   useEffect(() => {
     if (session?.user) {
-      // Replace prevents going "back" to login screen
       router.replace("/tabs/profile");
     }
-  }, [router, session]);
+  }, [router, session?.user]);
 
   if (isLoading) {
     return <ActivityIndicator style={{ marginTop: 40 }} />;
   }
 
   if (session?.user) {
-    // Redirecting — nothing to render
     return null;
   }
+
   return (
-      <View style={{ flex: 1 }}>
-        <AppHeader />
-        <Auth />
-      </View>
+    <View style={{ flex: 1 }}>
+      <AppHeader />
+      <Auth />
+    </View>
   );
 }

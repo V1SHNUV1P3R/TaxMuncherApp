@@ -1,20 +1,19 @@
 import { useAuth } from "@/src/components/AuthProvider";
 import MyButton from "@/src/components/MyButton";
 import colors from "@/src/styles/colors";
-import { supabase } from "@/utils/supabase";
-import { useFocusEffect } from "@react-navigation/native";
-import { useRouter } from "expo-router";
 import defaultStyles from "@/src/styles/defaultStyles";
+import { supabase } from "@/utils/supabase";
+import { useRouter } from "expo-router";
 
-import { useCallback, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
-  ActivityIndicator,
-  FlatList,
-  Image,
-  Text,
-  TouchableOpacity,
-  View,
+    ActivityIndicator,
+    FlatList,
+    Image,
+    Text,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const theme = colors.dark;
@@ -62,34 +61,34 @@ export default function ReceiptList() {
   const [receipts, setReceipts] = useState<Receipt[]>([]);
 
   async function fetchReceipts() {
-    if (!session?.user) return;
+    if (!session?.user) {
+      setReceipts([]);
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
 
     const { data, error } = await supabase
-
       .from("receipts")
-
       .select("*")
-
       .eq("profile_id", session.user.id)
-
       .order("purchase_date", {
         ascending: false,
       });
 
     if (!error && data) {
       setReceipts(data);
+    } else {
+      setReceipts([]);
     }
 
     setLoading(false);
   }
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchReceipts();
-    }, []),
-  );
+  useEffect(() => {
+    fetchReceipts();
+  }, [session?.user?.id]);
 
   if (loading) {
     return (

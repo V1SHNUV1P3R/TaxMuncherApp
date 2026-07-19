@@ -12,7 +12,8 @@ const defaultStyles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.background,
     paddingHorizontal: 20,
-    paddingTop: 16,
+    paddingTop: 10,
+    paddingBottom: 20,
   },
 
   container: {
@@ -40,6 +41,7 @@ const defaultStyles = StyleSheet.create({
   },
 
   center: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -107,6 +109,10 @@ const defaultStyles = StyleSheet.create({
     borderRadius: 22,
     padding: 18,
     marginVertical: 8,
+    alignSelf: "center",
+    width: "100%",
+    maxWidth: 420,
+    alignItems: "center",
 
     shadowColor: "#000",
     shadowOpacity: 0.25,

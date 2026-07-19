@@ -1,21 +1,11 @@
 import colors from "@/src/styles/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs, useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect } from "react";
+import { Tabs } from "expo-router";
 
 const themeMK1 = colors.dark;
 const themeMK2 = colors.light;
 
 export default function TabsLayout() {
-  const { name, activity } = useLocalSearchParams(); // Retrieve passed data
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!name || !activity) {
-      router.replace("/"); // Redirect to entry screen if no data
-    }
-  }, [name, activity]);
-
   return (
     <Tabs
       screenOptions={{
@@ -49,7 +39,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="receiptList"
         options={{
-          headerTitle:"All Receipts",
+          headerTitle: "All Receipts",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
               name={focused ? "people" : "people-outline"}
@@ -59,19 +49,20 @@ export default function TabsLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="taxDetails"
         options={{
-          headerTitle: "Tax Details",
+          headerShown: false,
+          title: "Taxes",
           tabBarIcon: ({ focused, color }) => (
             <Ionicons
-              name={focused ? "school" : "school-outline"}
+              name={focused ? "calculator" : "calculator-outline"}
               size={24}
               color={color}
             />
           ),
         }}
-      /> */}
+      />
     </Tabs>
   );
 }

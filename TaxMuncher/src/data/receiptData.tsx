@@ -25,5 +25,3 @@ export type Receipt = {
 
   created_at?: string;
 };
-
-export const INITIAL_RECEIPTS: Receipt[] = [];

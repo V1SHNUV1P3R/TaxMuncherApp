@@ -1,11 +1,10 @@
 // AI Assistance Used
-// Tool: ChatGPT (OpenAI)
-// Date: 2026-01-04
-// Link: https://chat.openai.com/share/XXXXXXXX
-// Purpose: Redid the styling for the app header, with a new color scheme and layout.
-// Notes: Mini style sheet is now updated with the right looks.
+// Tool: Gemini
+// Date: 2026-07-18
+// Purpose: Fix logout function redirect and fix alignment layout so button is clickable.
+import colors from "@/src/styles/colors";
 import { Ionicons } from "@expo/vector-icons";
-import { usePathname } from "expo-router";
+import { usePathname, router } from "expo-router"; // 👈 Added router
 import {
   Alert,
   Image,
@@ -14,7 +13,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import colors from "@/src/styles/colors";
 import { supabase } from "../../utils/supabase";
 
 const theme = colors.dark;
@@ -22,54 +20,47 @@ const theme = colors.dark;
 function getTitleFromPath(pathname: string) {
   if (pathname === "/") return "Welcome";
   if (pathname.includes("index")) return "Home";
-  if (pathname.includes("editProfile")) return "Settings";
-  if (pathname.includes("profile")) return "Edit Profile";
+  if (pathname.includes("settings")) return "Settings";
+  if (pathname.includes("editProfile")) return "Edit Profile";
+  if (pathname.includes("profile")) return "Profile";
   return "App";
 }
 
 export default function AppHeader() {
   const pathname = usePathname();
   const title = getTitleFromPath(pathname);
-  // Read global state (we DON'T change it here, just read it)
-
 
   async function handleLogout() {
-  // // If a game is active, block logout
-  // if (gameRunning) {
-  //   Alert.alert(
-  //     "Game in progress",
-  //     "Finish or stop your timer before logging out."
-  //   );
-  //   return; // stop function here
-  // }
+    try {
+      const { error } = await supabase.auth.signOut();
 
-  // Otherwise, proceed normally
-  try {
-    const { error } = await supabase.auth.signOut();
-
-    if (error) {
-      console.error("Logout error:", error);
-      Alert.alert("Logout failed", error.message);
+      if (error) {
+        console.error("Logout error:", error);
+        Alert.alert("Logout failed", error.message);
+      } else {
+        // 👈 Redirect user back to the welcome/index screen on success
+        router.replace("/");
+      }
+    } catch (err: any) {
+      Alert.alert("Logout failed", err?.message ?? String(err));
     }
-  } catch (err: any) {
-    Alert.alert("Logout failed", err?.message ?? String(err));
   }
-}
 
   return (
     <View style={styles.container}>
       <View style={styles.leftContainer}>
         <Image
           style={styles.imageLogo}
-          source={require("../assets/images/react-logo.png")}
+          source={require("../../assets/images/react-logo.png")}
         />
         <Text style={styles.title}>{title}</Text>
       </View>
 
       <View style={styles.rightContainer}>
-        <TouchableOpacity
-          style={styles.logoutButton}
+        <TouchableOpacity 
+          style={styles.logoutButton} 
           onPress={handleLogout}
+          activeOpacity={0.7} // Gives visual feedback when pressed
         >
           <Ionicons
             name="log-out-outline"
@@ -85,11 +76,12 @@ export default function AppHeader() {
 const styles = StyleSheet.create({
   container: {
     width: "100%",
-    height: 90,
+    height: 100, // Slightly increased to accommodate padding comfortably
     paddingHorizontal: 16,
-    backgroundColor: "#3A3332", // ⭐ darker/intense grey
+    paddingBottom: 12, // 👈 Safe padding for physical devices
+    backgroundColor: "#3A3332", 
     flexDirection: "row",
-    alignItems: "flex-end",
+    alignItems: "flex-end", // Kept alignment, but padding ensures it stays inside boundaries
     justifyContent: "space-between",
     borderBottomWidth: 1,
     borderBottomColor: theme.border,
@@ -108,18 +100,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "800",
-    color: theme.buttonPrimary, // ⭐ purple accent
+    color: theme.buttonPrimary, 
     marginLeft: 10,
+    bottom: -2, // Slight adjustment to line up perfectly with the logo baseline
   },
 
   imageLogo: {
     height: 30,
     width: 30,
-    marginBottom: 6,
   },
 
   logoutButton: {
-    padding: 8,
+    padding: 10, // Increased touch target area (Apple & Android guidelines recommend min 44x44px total target)
     borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });

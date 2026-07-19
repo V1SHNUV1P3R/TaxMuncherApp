@@ -34,8 +34,16 @@ export default function ProfileScreen() {
   // const backgroundMusic = useAudioPlayer(background);
 
   useEffect(() => {
+    let ignore = false;
+
     async function loadProfile() {
-      if (!session?.user) return;
+      if (!session?.user) {
+        if (!ignore) {
+          setProfile(null);
+          setLoading(false);
+        }
+        return;
+      }
 
       const { data, error } = await supabase
         .from("Profiles")
@@ -50,16 +58,22 @@ export default function ProfileScreen() {
         .eq("id", session.user.id)
         .single();
 
-      if (error) {
-        console.warn(error);
-      }
+      if (!ignore) {
+        if (error) {
+          console.warn(error);
+        }
 
-      setProfile(data);
-      setLoading(false);
+        setProfile(data);
+        setLoading(false);
+      }
     }
 
     loadProfile();
-  }, [session]);
+
+    return () => {
+      ignore = true;
+    };
+  }, [session?.user?.id]);
 
   if (loading) {
     return <ActivityIndicator style={{ marginTop: 40 }} />;
