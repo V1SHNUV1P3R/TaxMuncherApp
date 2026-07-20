@@ -3,12 +3,14 @@ import MyButton from "@/src/components/MyButton";
 import TextField from "@/src/components/TextField";
 import colors from "@/src/styles/colors";
 import defaultStyles from "@/src/styles/defaultStyles";
-import { useBackHandler } from "@/src/components/useBackHandler"; // 👈 Imported your hook
+import { useBackHandler } from "@/src/components/useBackHandler";
 import { supabase } from "@/utils/supabase";
+import { analyzeReceipt } from "@/src/services/receiptAIService";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter, useNavigation } from "expo-router";
 import { useState, useRef } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Image,
   ScrollView,
@@ -30,11 +32,13 @@ export default function AddReceipt() {
   const [total, setTotal] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
+  const [category, setCategory] = useState("Other");
   const [image, setImage] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [aiProcessed, setAiProcessed] = useState(false);
 
   const isSaving = useRef(false);
 
-  // 👈 Calculate if any text input field contains data or a photo asset is staged
   const isDirty =
     merchant.trim() !== "" ||
     subtotal.trim() !== "" ||
@@ -44,7 +48,6 @@ export default function AddReceipt() {
     notes.trim() !== "" ||
     image !== null;
 
-  // 👈 Using your shared helper hook
   useBackHandler(isDirty, isSaving);
 
   async function pickImage() {
@@ -61,8 +64,34 @@ export default function AddReceipt() {
       quality: 1,
     });
 
-    if (!result.canceled) {
-      setImage(result.assets[0].uri);
+    if (result.canceled) {
+      return;
+    }
+
+    const uri = result.assets[0].uri;
+    setImage(uri);
+
+    setIsAnalyzing(true);
+    try {
+      const receipt = await analyzeReceipt(uri);
+
+      setMerchant(receipt.merchant_name);
+      setSubtotal(receipt.subtotal.toString());
+      setSalesTax(receipt.sales_tax.toString());
+      setTotal(receipt.total.toString());
+      setPaymentMethod(receipt.payment_method);
+      setNotes(receipt.notes);
+      setCategory(receipt.category || "Other");
+      setAiProcessed(true);
+    } catch (err) {
+      console.error("Receipt analysis failed:", err);
+      Alert.alert(
+        "Couldn't read receipt",
+        "We couldn't extract details automatically. You can still fill the form in manually."
+      );
+      setAiProcessed(false);
+    } finally {
+      setIsAnalyzing(false);
     }
   }
 
@@ -108,14 +137,14 @@ export default function AddReceipt() {
     const { error } = await supabase.from("receipts").insert({
       profile_id: session?.user.id,
       merchant_name: merchant,
-      category: "Other",
+      category: category,
       subtotal: Number(subtotal),
       sales_tax: Number(salesTax),
       total: Number(total),
       payment_method: paymentMethod,
       notes,
       image_url: imageURL,
-      ai_processed: false,
+      ai_processed: aiProcessed,
     });
 
     if (error) {
@@ -150,6 +179,7 @@ export default function AddReceipt() {
           },
         ]}
         onPress={pickImage}
+        disabled={isAnalyzing}
       >
         {image ? (
           <Image
@@ -174,6 +204,13 @@ export default function AddReceipt() {
 
             <Text style={defaultStyles.caption}>Tap to add receipt photo</Text>
           </>
+        )}
+
+        {isAnalyzing && (
+          <View style={{ marginTop: 12, alignItems: "center" }}>
+            <ActivityIndicator color={theme.primary} />
+            <Text style={defaultStyles.caption}>Reading receipt…</Text>
+          </View>
         )}
       </TouchableOpacity>
 
@@ -208,6 +245,8 @@ export default function AddReceipt() {
           value={paymentMethod}
           onChangeText={setPaymentMethod}
         />
+
+        <TextField placeholder="Category" value={category} onChangeText={setCategory} />
 
         <TextField placeholder="Notes" value={notes} onChangeText={setNotes} />
       </View>
