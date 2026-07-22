@@ -83,6 +83,13 @@ export default function AddReceipt() {
       setNotes(receipt.notes);
       setCategory(receipt.category || "Other");
       setAiProcessed(true);
+
+      if (receipt.confidence < 60) {
+        Alert.alert(
+          "Please double-check this receipt",
+          "The scan quality was low, so some fields may be inaccurate. Review the details before saving."
+        );
+      }
     } catch (err) {
       console.error("Receipt analysis failed:", err);
       Alert.alert(
