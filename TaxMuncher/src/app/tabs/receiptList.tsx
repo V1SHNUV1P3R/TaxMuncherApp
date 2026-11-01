@@ -1,329 +1,209 @@
-import { useAuth } from "@/src/components/AuthProvider";
-import MyButton from "@/src/components/MyButton";
-import colors from "@/src/styles/colors";
-import defaultStyles from "@/src/styles/defaultStyles";
-import { supabase } from "@/utils/supabase";
-import { useRouter } from "expo-router";
-
-import { useEffect, useState } from "react";
-
+import { useMemo, useState } from "react";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { router } from "expo-router";
 import {
-    ActivityIndicator,
-    FlatList,
-    Image,
-    Text,
-    TouchableOpacity,
-    View,
-} from "react-native";
-
-const theme = colors.dark;
-
-type Receipt = {
-  id: string;
-
-  merchant_name: string;
-
-  purchase_date: string;
-
-  subtotal: number;
-
-  sales_tax: number;
-
-  total: number;
-
-  payment_method: string;
-
-  image_url: string;
-};
-
-const categoryIcons: Record<string, string> = {
-  Grocery: "🛒",
-  Food: "🍔",
-  Gas: "⛽",
-  Electronics: "💻",
-  Clothing: "👕",
-  Medical: "🏥",
-  Transportation: "🚗",
-  Entertainment: "🎮",
-  Education: "📚",
-  Home: "🏠",
-  Shopping: "📦",
-  Other: "🧾",
-};
-
+  Screen,
+  Title,
+  Card,
+  Heading,
+  Label,
+  Notice,
+  Loading,
+  IconButton,
+  s,
+} from "@/src/components/ui";
+import { useTheme } from "@/src/components/ThemeProvider";
+import { useReceipts } from "@/src/components/useReceipts";
+import ReceiptCard from "@/src/components/receiptCard";
+import TextField from "@/src/components/TextField";
+import MyButton from "@/src/components/MyButton";
 export default function ReceiptList() {
-  const router = useRouter();
-
-  const { session } = useAuth();
-
-  const [loading, setLoading] = useState(true);
-
-  const [receipts, setReceipts] = useState<Receipt[]>([]);
-
-  async function fetchReceipts() {
-    if (!session?.user) {
-      setReceipts([]);
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-
-    const { data, error } = await supabase
-      .from("receipts")
-      .select("*")
-      .eq("profile_id", session.user.id)
-      .order("purchase_date", {
-        ascending: false,
-      });
-
-    if (!error && data) {
-      setReceipts(data);
-    } else {
-      setReceipts([]);
-    }
-
-    setLoading(false);
-  }
-
-  useEffect(() => {
-    fetchReceipts();
-  }, [session?.user?.id]);
-
-  if (loading) {
-    return (
-      <View style={[defaultStyles.screen, defaultStyles.center]}>
-        <ActivityIndicator size="large" color={theme.primary} />
-      </View>
-    );
-  }
-
+  const { theme } = useTheme();
+  const { receipts, loading, error, reload } = useReceipts();
+  const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("All");
+  const [sort, setSort] = useState("Newest");
+  const [filters, setFilters] = useState(false);
+  const [min, setMin] = useState("");
+  const [max, setMax] = useState("");
+  const [start, setStart] = useState("");
+  const [end, setEnd] = useState("");
+  const categories = ["All", ...new Set(receipts.map((r) => r.category))];
+  const visible = useMemo(
+    () =>
+      receipts
+        .filter(
+          (r) =>
+            (r.merchant_name + " " + r.notes + " " + r.category)
+              .toLowerCase()
+              .includes(search.toLowerCase()) &&
+            (category === "All" || r.category === category) &&
+            (!min || r.total >= Number(min)) &&
+            (!max || r.total <= Number(max)) &&
+            (!start || r.purchase_date >= start) &&
+            (!end || r.purchase_date <= end),
+        )
+        .sort((a, b) =>
+          sort === "Highest"
+            ? b.total - a.total
+            : sort === "Lowest"
+              ? a.total - b.total
+              : sort === "A-Z"
+                ? a.merchant_name.localeCompare(b.merchant_name)
+                : sort === "Oldest"
+                  ? a.purchase_date.localeCompare(b.purchase_date)
+                  : b.purchase_date.localeCompare(a.purchase_date),
+        ),
+    [receipts, search, category, sort, min, max, start, end],
+  );
   return (
-    <View style={defaultStyles.screen}>
-      <View style={defaultStyles.rowBetween}>
-        <View>
-          <Text style={defaultStyles.heroTitle}>Receipts</Text>
-
-          <Text style={defaultStyles.subheading}>{receipts.length} Stored</Text>
-        </View>
-
-        <View
-          style={{
-            width: 150,
-          }}
-        >
-          <MyButton
-            title="+ Add"
-            onPress={() => router.push("../addReceipt")}
-            color={theme.primary}
+    <Screen>
+      <Title
+        eyebrow="Your paper trail, simplified"
+        title="Receipt library"
+        subtitle={
+          visible.length +
+          " of " +
+          receipts.length +
+          " receipts in one happy place."
+        }
+        action={
+          <IconButton
+            name="add"
+            label="Add receipt"
+            onPress={() => router.push("/addReceipt")}
           />
-        </View>
-      </View>
-
-      <FlatList
-        data={receipts}
-        keyExtractor={(item) => item.id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingTop: 20,
-          paddingBottom: 120,
-        }}
-        ListEmptyComponent={() => (
-          <View
-            style={[
-              defaultStyles.center,
-              {
-                marginTop: 80,
-              },
-            ]}
-          >
-            <Text
-              style={{
-                fontSize: 70,
-              }}
-            >
-              🧾
-            </Text>
-
-            <Text style={defaultStyles.heading}>No Receipts Yet</Text>
-
-            <Text
-              style={[
-                defaultStyles.caption,
-                {
-                  marginTop: 8,
-                  textAlign: "center",
-                },
-              ]}
-            >
-              Add your first receipt to begin tracking purchases.
-            </Text>
-          </View>
-        )}
-        renderItem={({ item }) => (
-          <TouchableOpacity
-            activeOpacity={0.9}
-            // onPress={() =>
-            //     router.push({
-            //         pathname: "/receiptDetails",
-            //         params: {
-            //             id: item.id,
-            //         },
-            //     })
-            // }
+        }
+      />
+      <TextField
+        placeholder="Search merchants, categories, notes"
+        value={search}
+        onChangeText={setSearch}
+      />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: 8 }}
+      >
+        {categories.map((c) => (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityState={{ selected: c === category }}
+            key={c}
+            onPress={() => setCategory(c)}
             style={{
-              backgroundColor: theme.surface,
-              borderRadius: 22,
-              padding: 18,
-              marginBottom: 18,
-
-              borderWidth: 1,
-              borderColor: theme.border,
+              paddingHorizontal: 18,
+              paddingVertical: 12,
+              borderRadius: 24,
+              backgroundColor:
+                c === category ? theme.buttonPrimary : theme.card,
             }}
           >
-            <View style={defaultStyles.rowBetween}>
-              <View style={{ flex: 1 }}>
-                <Text
-                  style={{
-                    fontSize: 22,
-                    fontWeight: "700",
-                    color: theme.primaryText,
-                  }}
-                >
-                  {item.merchant_name}
-                </Text>
-
-                <Text
-                  style={{
-                    color: theme.secondaryText,
-                    marginTop: 3,
-                  }}
-                >
-                  {item.payment_method}
-                </Text>
-              </View>
-
-              <Text
-                style={{
-                  fontSize: 24,
-                  fontWeight: "800",
-                  color: theme.primary,
-                }}
-              >
-                ${Number(item.total).toFixed(2)}
-              </Text>
-            </View>
-
-            <View
+            <Text
               style={{
-                marginVertical: 16,
-                height: 1,
-                backgroundColor: theme.border,
-              }}
-            />
-
-            <View style={defaultStyles.rowBetween}>
-              <View>
-                <Text style={defaultStyles.caption}>Purchase Date</Text>
-
-                <Text style={defaultStyles.body}>{item.purchase_date}</Text>
-              </View>
-
-              <View
-                style={{
-                  backgroundColor: theme.secondary,
-                  paddingHorizontal: 14,
-                  paddingVertical: 6,
-                  borderRadius: 20,
-                }}
-              >
-                <Text
-                  style={{
-                    color: "white",
-                    fontWeight: "700",
-                  }}
-                >
-                  {item.payment_method}
-                </Text>
-              </View>
-            </View>
-
-            <View
-              style={{
-                marginTop: 18,
+                color: c === category ? "white" : theme.secondaryText,
+                fontSize: 12,
+                fontWeight: "600",
               }}
             >
-              <View style={defaultStyles.rowBetween}>
-                <Text style={defaultStyles.caption}>Subtotal</Text>
-
-                <Text style={defaultStyles.body}>
-                  ${Number(item.subtotal).toFixed(2)}
-                </Text>
-              </View>
-
-              <View style={[defaultStyles.rowBetween, { marginTop: 8 }]}>
-                <Text style={defaultStyles.caption}>Sales Tax</Text>
-
-                <Text style={defaultStyles.body}>
-                  ${Number(item.sales_tax).toFixed(2)}
-                </Text>
-              </View>
-
-              <View style={[defaultStyles.rowBetween, { marginTop: 8 }]}>
-                <Text
-                  style={{
-                    fontWeight: "700",
-                    fontSize: 17,
-                    color: theme.primaryText,
-                  }}
-                >
-                  Total
-                </Text>
-
-                <Text
-                  style={{
-                    fontWeight: "800",
-                    fontSize: 18,
-                    color: theme.primary,
-                  }}
-                >
-                  ${Number(item.total).toFixed(2)}
-                </Text>
-              </View>
-            </View>
-
-            {item.image_url && (
-              <View
-                style={{
-                  marginTop: 20,
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Image
-                  source={{ uri: item.image_url }}
-                  style={{
-                    width: 80,
-                    height: 80,
-                    borderRadius: 14,
-                  }}
-                  resizeMode="cover"
-                />
-
-                <Text
-                  style={{
-                    fontSize: 24,
-                    color: theme.primary,
-                  }}
-                >
-                  ›
-                </Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        )}
-      />
-    </View>
+              {c}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+      <View style={s.between}>
+        <Heading>All receipts</Heading>
+        <MyButton
+          title={filters ? "Hide filters" : "Filter & sort"}
+          secondary
+          onPress={() => setFilters(!filters)}
+        />
+      </View>
+      {filters && (
+        <Card>
+          <Heading>Refine your library</Heading>
+          <ScrollView horizontal contentContainerStyle={{ gap: 8 }}>
+            {["Newest", "Oldest", "Highest", "Lowest", "A-Z"].map((v) => (
+              <MyButton
+                key={v}
+                title={v}
+                secondary={sort !== v}
+                onPress={() => setSort(v)}
+              />
+            ))}
+          </ScrollView>
+          <TextField
+            placeholder="Minimum amount"
+            keyboardType="decimal-pad"
+            value={min}
+            onChangeText={setMin}
+          />
+          <TextField
+            placeholder="Maximum amount"
+            keyboardType="decimal-pad"
+            value={max}
+            onChangeText={setMax}
+          />
+          <TextField
+            placeholder="From date (YYYY-MM-DD)"
+            value={start}
+            onChangeText={setStart}
+          />
+          <TextField
+            placeholder="To date (YYYY-MM-DD)"
+            value={end}
+            onChangeText={setEnd}
+          />
+          <MyButton
+            title="Reset filters"
+            secondary
+            onPress={() => {
+              setSearch("");
+              setCategory("All");
+              setSort("Newest");
+              setMin("");
+              setMax("");
+              setStart("");
+              setEnd("");
+            }}
+          />
+        </Card>
+      )}
+      {loading ? (
+        <Loading />
+      ) : error ? (
+        <>
+          <Notice text={error} />
+          <MyButton title="Retry" onPress={reload} />
+        </>
+      ) : visible.length ? (
+        visible.map((r) => (
+          <ReceiptCard
+            key={r.id}
+            receipt={r}
+            onPress={() =>
+              router.push({ pathname: "/receiptDetails", params: { id: r.id } })
+            }
+          />
+        ))
+      ) : (
+        <Card>
+          <Heading>
+            {receipts.length
+              ? "No matches just yet"
+              : "Make room for your first receipt"}
+          </Heading>
+          <Label muted>
+            {receipts.length
+              ? "Try another search or reset your filters."
+              : "Capture or enter a receipt to start tracking sales tax."}
+          </Label>
+          <MyButton
+            title="Add receipt"
+            onPress={() => router.push("/addReceipt")}
+          />
+        </Card>
+      )}
+    </Screen>
   );
 }

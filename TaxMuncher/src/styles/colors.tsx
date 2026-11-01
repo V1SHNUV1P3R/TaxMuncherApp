@@ -1,62 +1,54 @@
-const colors = {
-  dark: {
-    background: "#0B132B",
-    surface: "#1C2541",
-    card: "#24344F",
-
-    primary: "#5BC0BE",
-    secondary: "#3A506B",
-
-    primaryText: "#FFFFFF",
-    secondaryText: "#AFC5D8",
-
-    border: "#3A506B",
-
-    inputBackground: "#16213A",
-
-    buttonPrimary: "#5BC0BE",
-    buttonSecondary: "#3A506B",
-    buttonDanger: "#FF6B6B",
-
-    buttonText: "#0B132B",
-
-    success: "#5BC0BE",
-    warning: "#FFC857",
-    danger: "#FF6B6B",
-  },
-
-  light: {
-    // Backgrounds
-    background: "#F8FAFC",
-    surface: "#FFFFFF",
-    card: "#EEF4F8",
-
-    // Brand colors
-    primary: "#3A506B",
-    secondary: "#5BC0BE",
-
-    // Text
-    primaryText: "#0B132B",
-    secondaryText: "#5C7088",
-
-    // Borders
-    border: "#D3DEE7",
-
-    // Inputs
-    inputBackground: "#F1F5F9",
-
-    // Buttons
-    buttonPrimary: "#3A506B",
-    buttonSecondary: "#5BC0BE",
-    buttonDanger: "#E74C3C",
-
-    buttonText: "#FFFFFF",
-
-    // Status
-    success: "#2E8B57",
-    warning: "#D98E04",
-    danger: "#E74C3C",
-  },
+const palette = {
+  rust: "#A55226",
+  orange: "#D07335",
+  amber: "#DB8A45",
+  sand: "#ECB36F",
 };
-
+const common = {
+  primary: palette.rust,
+  secondary: palette.orange,
+  success: "#46734F",
+  warning: "#945A19",
+  danger: "#B53732",
+  buttonPrimary: palette.rust,
+  buttonSecondary: palette.orange,
+  buttonDanger: "#B53732",
+  buttonText: "#FFFFFF",
+  inputFocus: palette.orange,
+};
+const colors = {
+  palette,
+  light: {
+    ...common,
+    background: "#FBF7F1",
+    surface: "#FFFFFF",
+    card: "#F6EBDD",
+    primaryText: "#302116",
+    secondaryText: "#7B6859",
+    border: "#E9DDD0",
+    textboxBackground: "#FFFFFF",
+    inputBackground: "#FFFFFF",
+  },
+  dark: {
+    ...common,
+    primary: palette.sand,
+    background: "#211A16",
+    surface: "#30251E",
+    card: "#403025",
+    primaryText: "#FFF6EB",
+    secondaryText: "#CFB79F",
+    border: "#554132",
+    textboxBackground: "#30251E",
+    inputBackground: "#30251E",
+    inputFocus: palette.sand,
+  },
+  accent: palette.amber,
+  shadow: "#30211615",
+  disabled: "#B9AA9A",
+  placeholder: "#8C7867",
+  separator: "#E9DDD0",
+  highlight: "#F6EBDD",
+  inputBorder: "#E9DDD0",
+};
+export type AppTheme = typeof colors.light;
 export default colors;

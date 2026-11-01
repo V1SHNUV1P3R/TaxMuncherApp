@@ -1,65 +1,48 @@
-import colors from "@/src/styles/colors";
-import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
-
-const themeMK1 = colors.dark;
-const themeMK2 = colors.light;
-
+import { Ionicons } from "@expo/vector-icons";
+import { useTheme } from "@/src/components/ThemeProvider";
 export default function TabsLayout() {
+  const { theme } = useTheme();
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: themeMK1.buttonPrimary,
-        tabBarInactiveTintColor: themeMK1.secondaryText,
-        headerStyle: {
-          backgroundColor: themeMK1.surface,
-        },
-        headerShadowVisible: false,
-        headerTintColor: themeMK1.primaryText,
+        headerShown: false,
+        tabBarActiveTintColor: theme.primary,
+        tabBarInactiveTintColor: theme.secondaryText,
         tabBarStyle: {
-          backgroundColor: themeMK1.background,
-          borderTopColor: themeMK1.border,
-          borderTopWidth: 1,
+          backgroundColor: theme.surface,
+          borderTopColor: theme.border,
+          height: 84,
+          paddingTop: 10,
+          paddingBottom: 20,
         },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "600" },
       }}
     >
       <Tabs.Screen
         name="profile"
         options={{
-          headerTitle: "Profile",
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "home-sharp" : "home-outline"}
-              size={24}
-              color={color}
-            />
+          title: "Overview",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="grid-outline" color={color} size={23} />
           ),
         }}
       />
       <Tabs.Screen
         name="receiptList"
         options={{
-          headerTitle: "All Receipts",
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "people" : "people-outline"}
-              size={24}
-              color={color}
-            />
+          title: "Receipts",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="receipt-outline" color={color} size={23} />
           ),
         }}
       />
       <Tabs.Screen
         name="taxDetails"
         options={{
-          headerShown: false,
-          title: "Taxes",
-          tabBarIcon: ({ focused, color }) => (
-            <Ionicons
-              name={focused ? "calculator" : "calculator-outline"}
-              size={24}
-              color={color}
-            />
+          title: "Tax summary",
+          tabBarIcon: ({ color }) => (
+            <Ionicons name="pie-chart-outline" color={color} size={23} />
           ),
         }}
       />

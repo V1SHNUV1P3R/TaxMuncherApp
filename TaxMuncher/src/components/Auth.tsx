@@ -1,204 +1,102 @@
-// Auth UI component
-import colors from "@/src/styles/colors";
-import defaultStyles from "@/src/styles/defaultStyles";
-import { supabase } from "@/utils/supabase";
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import {
-    Alert,
-    AppState,
-    AppStateStatus,
-    Image,
-    Text,
-    View,
-} from "react-native";
-import MyButton from "./MyButton";
+import { useEffect, useState } from "react";
+import { router } from "expo-router";
+import { Screen, Title, Card, Label, Notice } from "./ui";
 import TextField from "./TextField";
-
-export default function Auth({ noHeader }: { noHeader?: boolean } = {}) {
+import MyButton from "./MyButton";
+import { useAuth } from "./AuthProvider";
+import { supabase, isBackendConfigured } from "@/utils/supabase";
+export default function Auth() {
+  const { session } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
-  const router = useRouter();
-  const themeMK1 = colors.dark;
-  const themeMK2 = colors.light;
-
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
   useEffect(() => {
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === "active") {
-        supabase.auth.startAutoRefresh();
-      } else {
-        try {
-          supabase.auth.stopAutoRefresh();
-        } catch {}
-      }
-    };
-
-    const subscription = AppState.addEventListener(
-      "change",
-      handleAppStateChange,
-    );
-
-    if (AppState.currentState === "active") {
-      supabase.auth.startAutoRefresh();
-    }
-
-    return () => {
-      if (typeof subscription?.remove === "function") {
-        subscription.remove();
-      }
-      try {
-        supabase.auth.stopAutoRefresh();
-      } catch {}
-    };
-  }, []);
-
-  async function signInWithEmail() {
-    if (!isValidInput()) {
+    if (session) router.replace("/tabs/profile");
+  }, [session]);
+  async function submit(signUp: boolean) {
+    setMessage("");
+    if (!isBackendConfigured) {
+      setMessage(
+        "Account services are not configured. You can continue with the local prototype.",
+      );
       return;
     }
-
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) {
-      Alert.alert(error.message);
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setMessage("Enter a valid email address.");
       return;
     }
-
-    router.replace("/tabs/profile");
+    if (!password || (signUp && password.length < 8)) {
+      setMessage(
+        signUp
+          ? "Use a password with at least 8 characters."
+          : "Enter your password.",
+      );
+      return;
+    }
+    setBusy(true);
+    try {
+      const { data, error } = signUp
+        ? await supabase.auth.signUp({ email: email.trim(), password })
+        : await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+          });
+      if (error) throw error;
+      if (data.session) router.replace("/tabs/profile");
+      else
+        setMessage("Check your email to confirm your account, then sign in.");
+    } catch (e) {
+      setMessage(
+        e instanceof Error ? e.message : "Sign in failed. Please try again.",
+      );
+    } finally {
+      setBusy(false);
+    }
   }
-
-  async function signUpWithEmail() {
-    if (!isValidInput()) {
-      return;
-    }
-
-    const { error } = await supabase.auth.signUp({ email, password });
-
-    if (error) {
-      Alert.alert(error.message);
-      return;
-    }
-
-    router.replace("/tabs/profile");
-  }
-
-  const isValidInput = () => {
-    if (!email || !password) {
-      console.log("Email and password cannot be empty");
-      return false;
-    }
-
-    if (password.length < 6) {
-      console.log("Password must be at least 6 characters");
-      return false;
-    }
-
-    if (!/\d/.test(password)) {
-      console.log("Password must contain a number");
-      return false;
-    }
-
-    if (!email.toLowerCase().endsWith("@gmail.com")) {
-      console.log("Email must be a Gmail address");
-      Alert.alert("Invalid email", "Please use a @gmail.com email address");
-      return false;
-    }
-    return true;
-  };
-
   return (
-    <View style={defaultStyles.screen}>
-      <View style={[defaultStyles.flex, defaultStyles.center]}>
-        <View style={{ width: "100%", alignItems: "center" }}>
-          <Text style={defaultStyles.heroTitle}>Receipt Tracker</Text>
-
-          <Text
-            style={[
-              defaultStyles.subheading,
-              {
-                textAlign: "center",
-                marginTop: 10,
-                marginBottom: 24,
-              },
-            ]}
-          >
-            Sign in to continue managing your receipts and expenses.
-          </Text>
-
-          <View
-            style={[
-              defaultStyles.card,
-              {
-                width: "100%",
-                maxWidth: 420,
-                alignItems: "stretch",
-              },
-            ]}
-          >
-            <Text style={defaultStyles.caption}>Email</Text>
-
-            <View style={{ marginTop: 8, marginBottom: 18 }}>
-              <TextField
-                placeholder="Enter Email Here!"
-                value={email}
-                onChangeText={setEmail}
-              />
-            </View>
-
-            <Text style={defaultStyles.caption}>Password</Text>
-
-            <View style={{ marginTop: 8 }}>
-              <TextField
-                placeholder="Super Turbo Ultra Hyper Secret Password"
-                value={password}
-                onChangeText={setPassword}
-                isPassword
-              />
-            </View>
-
-            <Text
-              style={[
-                defaultStyles.small,
-                {
-                  marginBottom: 24,
-                  marginTop: 4,
-                },
-              ]}
-            >
-              Password must contain at least 6 characters and one number.
-            </Text>
-
-            <View style={{ gap: 14 }}>
-              <MyButton
-                title="Login"
-                onPress={signInWithEmail}
-                color={themeMK1.buttonPrimary}
-              />
-
-              <MyButton
-                title="Create Account"
-                onPress={signUpWithEmail}
-                color={themeMK1.secondary}
-                textColor={themeMK1.primaryText}
-              />
-            </View>
-          </View>
-
-          <Image
-            source={require("../../assets/images/icon.png")}
-            style={{
-              width: 90,
-              height: 90,
-              marginTop: 24,
-              opacity: 0.9,
-            }}
-          />
-        </View>
-      </View>
-    </View>
+    <Screen>
+      <Title
+        eyebrow="Welcome to TaxMuncher"
+        title="Less paper.\nMore peace of mind."
+        subtitle="Sign in to keep your receipt records with your account."
+      />
+      {message && <Notice text={message} />}
+      <Card>
+        <TextField
+          placeholder="Email address"
+          value={email}
+          onChangeText={setEmail}
+          autoCapitalize="none"
+          keyboardType="email-address"
+          autoComplete="email"
+        />
+        <TextField
+          placeholder="Password"
+          value={password}
+          onChangeText={setPassword}
+          isPassword
+        />
+        <Label muted>
+          New accounts need a password with at least 8 characters.
+        </Label>
+        <MyButton
+          title={busy ? "Please wait..." : "Sign in"}
+          disabled={busy}
+          onPress={() => submit(false)}
+        />
+        <MyButton
+          title="Create an account"
+          secondary
+          disabled={busy}
+          onPress={() => submit(true)}
+        />
+      </Card>
+      <MyButton
+        title="Continue with local prototype"
+        secondary
+        onPress={() => router.replace("/tabs/profile")}
+      />
+    </Screen>
   );
 }

@@ -1,7 +1,7 @@
 import { StyleSheet } from "react-native";
 import colors from "./colors";
 
-const theme = colors.dark;
+const theme = colors.light;
 
 const defaultStyles = StyleSheet.create({
   // ==========================

@@ -1,59 +1,64 @@
-import React from "react";
-import { Text, TouchableHighlight, View } from "react-native";
-import defaultStyles from "../styles/defaultStyles";
-
-type propsType = {
+import { ReactNode } from "react";
+import { Pressable, Text, View } from "react-native";
+import { useTheme } from "./ThemeProvider";
+type Props = {
   title: string;
   color?: string;
   textColor?: string;
   underlayColor?: string;
   onPress?: () => void;
-  onoff?: boolean; // Optional on/off state
-  icon?: React.ReactNode; // Optional icon prop
-  disabled?: boolean; // Optional disabled state
+  onoff?: boolean;
+  icon?: ReactNode;
+  disabled?: boolean;
+  secondary?: boolean;
 };
-
-const MyButton: React.FC<propsType> = ({
+export default function MyButton({
   title,
   color,
   textColor,
-  underlayColor = "darkblue",
   onPress,
   icon,
   disabled,
-}) => {
+  secondary,
+}: Props) {
+  const { theme } = useTheme();
   return (
-    <View>
-      <TouchableHighlight
-        style={[
-          defaultStyles.primaryButton,
-          color && { backgroundColor: color },
-          disabled && { opacity: 0.5 }, // 👈 visual feedback
-        ]}
-        underlayColor={underlayColor}
-        onPress={disabled ? undefined : onPress} // 👈 extra safety
-        disabled={disabled}
+    <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ disabled: !!disabled }}
+      disabled={disabled}
+      onPress={onPress}
+      style={({ pressed }) => ({
+        minHeight: 52,
+        paddingHorizontal: 20,
+        paddingVertical: 15,
+        borderRadius: 16,
+        backgroundColor:
+          color || (secondary ? theme.card : theme.buttonPrimary),
+        opacity: disabled ? 0.45 : pressed ? 0.75 : 1,
+        alignItems: "center",
+        justifyContent: "center",
+      })}
+    >
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 9,
+        }}
       >
-        <View
+        {icon}
+        <Text
           style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
+            color: textColor || (secondary ? theme.primaryText : "#FFFFFF"),
+            fontSize: 14,
+            fontWeight: "700",
           }}
         >
-          {icon && <View style={{ marginRight: 8 }}>{icon}</View>}
-          <Text
-            style={[
-              defaultStyles.buttonText,
-              textColor && { color: textColor },
-            ]}
-          >
-            {title}
-          </Text>
-        </View>
-      </TouchableHighlight>
-    </View>
+          {title}
+        </Text>
+      </View>
+    </Pressable>
   );
-};
-
-export default MyButton;
+}

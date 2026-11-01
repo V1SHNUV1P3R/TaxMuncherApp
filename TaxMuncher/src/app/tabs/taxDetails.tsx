@@ -1,152 +1,211 @@
-import { useAuth } from "@/src/components/AuthProvider";
+import { summarizeReceipts } from "@/src/services/receiptSummary";
+import { useState } from "react";
+import { Pressable, ScrollView, Text, View, Share } from "react-native";
+import {
+  Screen,
+  Title,
+  Card,
+  Heading,
+  Label,
+  Notice,
+  Loading,
+  money,
+  s,
+} from "@/src/components/ui";
+import { useReceipts } from "@/src/components/useReceipts";
+import { useTheme } from "@/src/components/ThemeProvider";
 import MyButton from "@/src/components/MyButton";
-import { getReceipts, getSalesTaxTotal } from "@/src/services/receiptService";
-import colors from "@/src/styles/colors";
-import defaultStyles from "@/src/styles/defaultStyles";
-
-import { useEffect, useState } from "react";
-
-import { ActivityIndicator, ScrollView, Text, View } from "react-native";
-
-const theme = colors.dark;
-
 export default function TaxDetails() {
-  const { session } = useAuth();
-
-  const [loading, setLoading] = useState(true);
-
-  const [salesTaxTotal, setSalesTaxTotal] = useState(0);
-
-  const [receiptCount, setReceiptCount] = useState(0);
-
-  const [showExplanation, setShowExplanation] = useState(false);
-
-  const loadData = async () => {
-    if (!session?.user) {
-      setReceiptCount(0);
-      setSalesTaxTotal(0);
-      setLoading(false);
-      return;
-    }
-
+  const { theme } = useTheme();
+  const { receipts, loading, error, reload, isDemo } = useReceipts();
+  const [year, setYear] = useState(String(new Date().getFullYear()));
+  const years = [
+    ...new Set([
+      String(new Date().getFullYear()),
+      ...receipts.map((r) => r.purchase_date.slice(0, 4)),
+    ]),
+  ]
+    .sort()
+    .reverse();
+  const {
+    rows,
+    tax: total,
+    spent,
+    categories: groups,
+  } = summarizeReceipts(receipts, year);
+  const [message, setMessage] = useState("");
+  async function exportSummary() {
     try {
-      setLoading(true);
-
-      const [receipts, taxTotal] = await Promise.all([
-        getReceipts(session.user.id),
-        getSalesTaxTotal(session.user.id),
-      ]);
-
-      setReceiptCount(receipts.length);
-      setSalesTaxTotal(taxTotal);
-    } finally {
-      setLoading(false);
+      const q = (v: string | number) =>
+        '"' +
+        (/^[=+@\-\t\r]/.test(String(v)) ? "'" : "") +
+        String(v).replaceAll('"', '""') +
+        '"';
+      const csv = [
+        "Merchant,Date,Category,Subtotal,Sales tax,Total",
+        ...rows.map((r) =>
+          [
+            r.merchant_name,
+            r.purchase_date,
+            r.category,
+            r.subtotal,
+            r.sales_tax,
+            r.total,
+          ]
+            .map(q)
+            .join(","),
+        ),
+        "Total sales tax," + total.toFixed(2),
+      ].join("\n");
+      await Share.share({
+        title: "TaxMuncher " + year + " sales tax summary",
+        message: csv,
+      });
+    } catch {
+      setMessage("Sharing is unavailable. Please try on your mobile device.");
     }
-  };
-
-  useEffect(() => {
-    loadData();
-  }, [session?.user?.id]);
-
-  if (loading) {
-    return (
-      <View style={[defaultStyles.screen, defaultStyles.center]}>
-        <ActivityIndicator size="large" color={theme.buttonPrimary} />
-      </View>
-    );
   }
-
   return (
-    <ScrollView
-      style={defaultStyles.screen}
-      contentContainerStyle={{
-        paddingBottom: 40,
-      }}
-    >
-      <Text style={defaultStyles.heroTitle}>Sales Tax Summary</Text>
-
-      <Text style={defaultStyles.subheading}>
-        Total sales tax from your saved receipts.
-      </Text>
-
-      <View style={defaultStyles.card}>
-        <Text style={defaultStyles.caption}>Receipts Processed</Text>
-
-        <Text style={defaultStyles.heroTitle}>{receiptCount}</Text>
-      </View>
-
-      <View style={defaultStyles.card}>
-        <Text style={defaultStyles.caption}>Total Sales Tax Paid</Text>
-
-        <Text
-          style={[
-            defaultStyles.heroTitle,
-            {
-              color: theme.success,
-            },
-          ]}
-        >
-          ${salesTaxTotal.toFixed(2)}
-        </Text>
-      </View>
-
-      <MyButton
-        title={showExplanation ? "Hide Information" : "How can I use this?"}
-        color={theme.buttonPrimary}
-        onPress={() => setShowExplanation(!showExplanation)}
+    <Screen>
+      <Title
+        eyebrow="A clearer view of tax time"
+        title="Your tax snapshot"
+        subtitle="Every receipt adds to the picture. Here is where you stand."
       />
-
-      {showExplanation && (
-        <View
-          style={[
-            defaultStyles.card,
-            {
-              marginTop: 20,
-            },
-          ]}
-        >
-          <Text style={defaultStyles.heading}>What is this?</Text>
-
-          <Text
-            style={[
-              defaultStyles.body,
-              {
-                marginTop: 10,
-              },
-            ]}
+      <ScrollView horizontal contentContainerStyle={{ gap: 10 }}>
+        {years.map((y) => (
+          <Pressable
+            key={y}
+            accessibilityRole="button"
+            accessibilityState={{ selected: y === year }}
+            onPress={() => setYear(y)}
+            style={{
+              paddingVertical: 11,
+              paddingHorizontal: 22,
+              borderRadius: 22,
+              backgroundColor: y === year ? theme.buttonPrimary : theme.card,
+            }}
           >
-            This is the total amount of sales tax you've paid across every
-            receipt stored in your account.
-          </Text>
-
-          <Text
-            style={[
-              defaultStyles.body,
-              {
-                marginTop: 12,
-              },
-            ]}
+            <Text
+              style={{
+                color: y === year ? "white" : theme.primaryText,
+                fontWeight: "700",
+              }}
+            >
+              {y}
+            </Text>
+          </Pressable>
+        ))}
+      </ScrollView>
+      {loading ? (
+        <Loading />
+      ) : error ? (
+        <>
+          <Notice text={error} />
+          <MyButton title="Retry" onPress={reload} />
+        </>
+      ) : (
+        <>
+          <View
+            style={{
+              backgroundColor: "#A55226",
+              padding: 28,
+              borderRadius: 28,
+              gap: 12,
+            }}
           >
-            Depending on your country, state, and your individual tax situation,
-            some taxpayers may be able to claim sales tax as part of their tax
-            filing.
-          </Text>
-
-          <Text
-            style={[
-              defaultStyles.caption,
-              {
-                marginTop: 18,
-              },
-            ]}
-          >
-            This app simply totals the sales tax recorded on your receipts.
-            Whether that amount can be claimed depends on the tax rules that
-            apply to you. Consider consulting a qualified tax professional
-            before filing.
-          </Text>
-        </View>
+            <Text
+              style={{
+                fontSize: 11,
+                fontWeight: "700",
+                letterSpacing: 2,
+                color: "#ECB36F",
+              }}
+            >
+              TRACKED SALES TAX / {year}
+            </Text>
+            <Text
+              style={{
+                color: "white",
+                fontSize: 48,
+                fontWeight: "800",
+                letterSpacing: -2,
+              }}
+            >
+              {money(total)}
+            </Text>
+            <Text style={{ color: "#F5D6AE", fontSize: 14, lineHeight: 22 }}>
+              Recorded sales tax available for deduction eligibility review.
+            </Text>
+          </View>
+          <View style={s.row}>
+            <View style={{ flex: 1 }}>
+              <Card>
+                <Label muted>Receipt count</Label>
+                <Heading>{rows.length}</Heading>
+              </Card>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Card>
+                <Label muted>Total purchases</Label>
+                <Heading>{money(spent)}</Heading>
+              </Card>
+            </View>
+          </View>
+          <Card>
+            <Heading>Sales tax by category</Heading>
+            {groups.length ? (
+              groups.map(([category, cents], i) => (
+                <View key={category} style={{ gap: 9 }}>
+                  <View style={s.between}>
+                    <Label>{category}</Label>
+                    <Heading>{money(cents / 100)}</Heading>
+                  </View>
+                  <View
+                    style={{
+                      height: 7,
+                      borderRadius: 5,
+                      backgroundColor: theme.card,
+                    }}
+                  >
+                    <View
+                      style={{
+                        height: 7,
+                        borderRadius: 5,
+                        width: ((total ? (cents / (total * 100)) * 100 : 0) +
+                          "%") as `${number}%`,
+                        backgroundColor: [
+                          "#A55226",
+                          "#D07335",
+                          "#DB8A45",
+                          "#ECB36F",
+                        ][i % 4],
+                      }}
+                    />
+                  </View>
+                </View>
+              ))
+            ) : (
+              <Label muted>
+                Add receipts for this year to see your category breakdown.
+              </Label>
+            )}
+          </Card>
+          <Notice text="This is recorded sales tax, not a guaranteed deduction or refund. Deductibility depends on your location, filing choices, and eligibility. Review your receipts with a tax professional." />
+          {isDemo && (
+            <Label muted>
+              Local prototype records only. Sample receipts, if added, are
+              included in these totals.
+            </Label>
+          )}
+          <MyButton
+            title="Share receipt summary (CSV)"
+            disabled={!rows.length}
+            onPress={exportSummary}
+          />
+          {message && <Notice text={message} />}
+        </>
       )}
-    </ScrollView>
+    </Screen>
   );
 }

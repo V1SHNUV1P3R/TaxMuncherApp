@@ -1,56 +1,86 @@
-# Welcome to your Expo app 👋
+﻿# TaxMuncher
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A mobile receipt and sales tax tracking prototype built with Expo SDK 57. The interface uses rust `#A55226`, orange `#D07335`, amber `#DB8A45`, and sand `#ECB36F`, with warm light and dark appearances.
 
-## Get started
+## Run
 
-1. Install dependencies
+Use Node 22.13 or newer (Node 24 is supported by the development scripts).
 
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
+```sh
+npm install
+npm start
+# or: npm run web
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+The app opens to Overview. Without a signed-in account, receipts are saved locally with AsyncStorage. Add receipts manually, attach photos, edit or delete records, search and filter the library, and inspect the Tax summary tab. The optional sample receipts are explicitly labeled and included in local totals. Signing in keeps cloud and local records separate; it does not migrate local receipts.
 
-### Other setup steps
+## Native receipt recognition
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+`@react-native-ml-kit/text-recognition` provides Google ML Kit OCR, and `expo-dev-client` is installed for development builds. It is loaded only when recognition is requested on native platforms. OCR displays recognized text for review; it does not invent amounts or claim to determine tax eligibility.
 
-## Learn more
+```sh
+npx expo run:android
+# On a Mac with Xcode:
+npx expo run:ios
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+These commands generate native projects and require the relevant Android/iOS tooling. Expo Go and web support manual entry and photo attachment; on-device OCR requires a custom native build. Device camera permissions are configured through the Expo ImagePicker plugin. Camera/OCR behavior still needs verification on physical devices.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## AI integration is prepared, not activated
 
-## Join the community
+`.env` was left untouched. The prototype does not initialize Gemini, read an AI credential at startup, or send receipts to Google. `AI_ENABLED` is deliberately `false` in `src/services/receiptAIService.ts`.
 
-Join our community of developers creating universal apps.
+The future app-facing contract is an authenticated analysis endpoint accepting multipart `image` and returning:
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```json
+{
+  "merchant_name": "Shop",
+  "purchase_date": "2026-10-30",
+  "subtotal": 20,
+  "sales_tax": 1.6,
+  "total": 21.6,
+  "payment_method": "Visa",
+  "category": "Shopping",
+  "notes": "",
+  "confidence": 95
+}
+```
+
+`utils/gemini.ts` contains an unused server-side Google GenAI adapter with structured output and runtime validation. A server supplies its own API key and supported model explicitly; the mobile app never imports this adapter. When integrating later, implement authentication, upload limits and rate limiting on the server, connect `EXPO_PUBLIC_RECEIPT_AI_URL`, then enable the UI flag. Keep the AI Studio credential on that server. Public Expo environment variables are compiled into client bundles. Existing environment files have not been edited.
+
+The UI supports analysis progress, failure fallback, confidence messaging, and manual review. No live AI accuracy or connectivity test has been performed.
+
+## Account backend
+
+The existing Supabase integration uses `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_KEY` (or `EXPO_PUBLIC_SUPABASE_ANON_KEY`). With no configured backend, the local prototype still opens. Keys are not logged.
+
+Cloud functionality expects the existing `receipts` table (fields in `src/data/receiptData.tsx`), the case-sensitive `Profiles` table (`id`, `first_name`, `last_name`, `phone_number`), and a `receipt-images` storage bucket. Receipt images retain the existing public URL storage contract. Before storing real receipts, configure appropriate table ownership policies and bucket access; a private bucket with signed URLs is preferable for sensitive documents. No remote schema, policies, data, or bucket settings were changed or verified in this work.
+
+## Tax summary
+
+Totals sum saved sales tax in integer cents to avoid floating point accumulation, with purchase-year and category breakdowns. Additions, edits, and deletions refresh when screens receive focus. CSV text can be shared using the native share sheet. These are tracked sales tax amounts for eligibility review, not guaranteed deductions, tax savings, or refunds. No filing-specific deduction calculation is provided.
+
+## Checks
+
+```sh
+npm run typecheck
+npm run lint
+npm test
+npx expo install --check
+npx expo export --platform all
+```
+
+Tests cover cent-based totals, year/category filtering, changes to totals after edits/deletion, invalid currency/date input, and malformed AI output. Bundle export verifies compilation, not physical-device camera/OCR, live authentication, database permissions, or live AI behavior.
+
+Reference: [Expo SDK 57](https://docs.expo.dev/versions/v57.0.0/), [Expo Router migration](https://docs.expo.dev/router/migrate/sdk-55-to-56/), [ML Kit wrapper](https://github.com/a7medev/react-native-ml-kit), [Gemini structured output](https://ai.google.dev/gemini-api/docs/structured-output).
+
+## Verification from this implementation
+
+- `npm run typecheck`: passed.
+- `npm run lint`: passed.
+- `npm test`: all 5 tests passed.
+- `npx expo install --check`: dependencies are up to date for SDK 57.
+- `npx expo export --platform all --output-dir dist`: passed for Android, iOS, and web, including all 12 static web routes.
+- `npm audit fix`: applied compatible fixes; 15 dependency advisories remain (6 low, 2 moderate, 7 high). No forced major Expo upgrade or downgrade was applied.
+
+These checks do not substitute for visual testing, device camera/OCR tests, or live Supabase and AI integration tests.

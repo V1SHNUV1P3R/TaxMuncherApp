@@ -1,6 +1,5 @@
-import { DateTimePicker, Host } from '@expo/ui/jetpack-compose';
-import { useState } from 'react';
-
+import { DateTimePicker, Host } from "@expo/ui/jetpack-compose";
+import { useState } from "react";
 
 //THIS IS FROM THE IMAGEPICKER EXAMPLE IN THE EXPO DOCUMENTATION
 //THIS IS NOT SUPPOSED TO BE USED, IT'S JUST FOR TESTING PURPOSES TO SEE IF THE IMAGEPICKER WORKS
@@ -11,7 +10,7 @@ export default function TimePickerExample() {
   return (
     <Host matchContents>
       <DateTimePicker
-        onDateSelected={date => {
+        onDateSelected={(date) => {
           setSelectedDate(date);
         }}
         displayedComponents="hourAndMinute"

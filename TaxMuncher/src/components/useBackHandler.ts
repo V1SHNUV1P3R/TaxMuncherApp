@@ -1,38 +1,28 @@
-import { useEffect } from "react";
-import { Alert } from "react-native";
-import { useNavigation } from "expo-router";
-
-// Make sure both arguments are defined in the function signature here:
+import { usePreventRemove, useNavigation } from "expo-router/react-navigation";
+import { Alert, Platform } from "react-native";
+import { RefObject } from "react";
 export function useBackHandler(
-  isDirty: boolean, 
-  isSavingRef: React.MutableRefObject<boolean>
+  isDirty: boolean,
+  isSavingRef: RefObject<boolean>,
 ) {
   const navigation = useNavigation();
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
-      // If nothing changed OR we are in the middle of a valid save, let them leave
-      if (!isDirty || isSavingRef.current) {
-        return;
-      }
-
-      // Block the back transition
-      e.preventDefault();
-
-      Alert.alert(
-        "Are you sure you want to exit?",
-        "This will discard changes.",
-        [
-          { text: "Stay", style: "cancel", onPress: () => {} },
-          {
-            text: "Discard",
-            style: "destructive",
-            onPress: () => navigation.dispatch(e.data.action),
-          },
-        ]
-      );
-    });
-
-    return unsubscribe;
-  }, [navigation, isDirty, isSavingRef]);
+  usePreventRemove(isDirty, ({ data }) => {
+    if (isSavingRef.current) {
+      navigation.dispatch(data.action);
+      return;
+    }
+    if (Platform.OS === "web") {
+      if (window.confirm("Discard unsaved receipt changes?"))
+        navigation.dispatch(data.action);
+      return;
+    }
+    Alert.alert("Discard changes?", "Your unsaved changes will be lost.", [
+      { text: "Keep editing", style: "cancel" },
+      {
+        text: "Discard",
+        style: "destructive",
+        onPress: () => navigation.dispatch(data.action),
+      },
+    ]);
+  });
 }

@@ -1,5 +1,6 @@
-import { supabase } from "@/utils/supabase";
+import { supabase, isBackendConfigured } from "@/utils/supabase";
 import { Session } from "@supabase/supabase-js";
+import { AppState } from "react-native";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 /*
@@ -32,9 +33,12 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(isBackendConfigured);
 
   useEffect(() => {
+    if (!isBackendConfigured) {
+      return;
+    }
     let mounted = true;
 
     /*
@@ -77,6 +81,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => {
       mounted = false;
       data?.subscription?.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isBackendConfigured) return;
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") supabase.auth.startAutoRefresh();
+      else supabase.auth.stopAutoRefresh();
+    });
+    supabase.auth.startAutoRefresh();
+    return () => {
+      sub.remove();
+      supabase.auth.stopAutoRefresh();
     };
   }, []);
 
