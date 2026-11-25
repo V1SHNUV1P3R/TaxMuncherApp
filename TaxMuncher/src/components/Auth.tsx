@@ -61,7 +61,7 @@ export default function Auth() {
         title="Less paper.\nMore peace of mind."
         subtitle="Sign in to keep your receipt records with your account."
       />
-      {message && <Notice text={message} />}
+      {!!message && <Notice text={message} />}
       <Card>
         <TextField
           placeholder="Email address"

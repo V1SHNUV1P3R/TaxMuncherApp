@@ -54,7 +54,7 @@ export function Title({
     <View style={{ gap: 7 }}>
       <View style={s.between}>
         <View style={{ flex: 1 }}>
-          {eyebrow && (
+          {!!eyebrow && (
             <Text
               style={{
                 color: theme.primary,
@@ -80,7 +80,7 @@ export function Title({
         </View>
         {action}
       </View>
-      {subtitle && (
+      {!!subtitle && (
         <Text
           style={{ color: theme.secondaryText, fontSize: 14, lineHeight: 22 }}
         >

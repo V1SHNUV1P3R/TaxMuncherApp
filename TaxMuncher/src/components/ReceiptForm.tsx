@@ -298,13 +298,13 @@ export default function ReceiptForm({ id }: { id?: string }) {
         title={id ? "Edit your receipt" : "One less loose receipt."}
         subtitle="Save the details now. Keep a clearer picture for tax time."
       />
-      {error && <Notice text={error} />}
+      {!!error && <Notice text={error} />}
       <Card>
         <Heading>Start with a photo</Heading>
         <Label muted>
           Attach a receipt, then enter or review its details below.
         </Label>
-        {image && (
+        {!!image && (
           <Image
             source={{ uri: image }}
             resizeMode="contain"
@@ -322,7 +322,7 @@ export default function ReceiptForm({ id }: { id?: string }) {
           onPress={() => pick(false)}
           disabled={busy || saving}
         />
-        {image && (
+        {!!image && (
           <>
             <MyButton
               title={busy ? "Reading receipt..." : "Read text on device"}
@@ -344,7 +344,7 @@ export default function ReceiptForm({ id }: { id?: string }) {
             ? "Review AI results before saving."
             : "AI auto-fill is prepared and currently disconnected. Manual entry is ready."}
         </Label>
-        {raw && (
+        {!!raw && (
           <Card accent>
             <Heading>Recognized text</Heading>
             <Text
@@ -427,7 +427,7 @@ export default function ReceiptForm({ id }: { id?: string }) {
           editable={!saving}
         />
       </Card>
-      {error && <Notice text={error} />}
+      {!!error && <Notice text={error} />}
       <MyButton
         title={
           saving ? "Saving receipt..." : id ? "Save changes" : "Save receipt"

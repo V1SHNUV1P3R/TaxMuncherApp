@@ -1,19 +1,19 @@
-﻿import { useState } from "react";
-import { Switch, View } from "react-native";
-import { router } from "expo-router";
+﻿import { useAuth } from "@/src/components/AuthProvider";
+import MyButton from "@/src/components/MyButton";
+import { useTheme } from "@/src/components/ThemeProvider";
 import {
-  Screen,
-  Title,
   Card,
   Heading,
   Label,
   Notice,
   s,
+  Screen,
+  Title,
 } from "@/src/components/ui";
-import { useAuth } from "@/src/components/AuthProvider";
-import { useTheme } from "@/src/components/ThemeProvider";
-import MyButton from "@/src/components/MyButton";
 import { supabase } from "@/utils/supabase";
+import { router } from "expo-router";
+import { useState } from "react";
+import { Switch, View } from "react-native";
 export default function Settings() {
   const { themeType, toggleTheme } = useTheme();
   const { session } = useAuth();
@@ -93,7 +93,7 @@ export default function Settings() {
           for eligibility review, not a promised deduction.
         </Label>
       </Card>
-      {error && <Notice text={error} />}
+      {!!error && <Notice text={error} />}
       <Label muted>TaxMuncher / Prototype 1.0</Label>
     </Screen>
   );

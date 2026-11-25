@@ -134,6 +134,90 @@ const defaultStyles = StyleSheet.create({
     borderColor: theme.border,
   },
 
+  // ==========================
+  // Landing Screen
+  // ==========================
+
+  landingHero: {
+    backgroundColor: colors.palette.rust,
+    borderRadius: 28,
+    padding: 26,
+    gap: 14,
+  },
+
+  landingHeroEyebrow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+
+  landingHeroEyebrowText: {
+    color: colors.palette.sand,
+    fontSize: 11,
+    fontWeight: "800",
+    letterSpacing: 1.4,
+  },
+
+  landingHeroTitle: {
+    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "800",
+    letterSpacing: -0.8,
+    lineHeight: 38,
+  },
+
+  landingHeroDescription: {
+    color: "#F5D6AE",
+    fontSize: 14,
+    lineHeight: 22,
+  },
+
+  landingSectionHeading: {
+    gap: 5,
+    marginTop: 4,
+  },
+
+  landingFeatureRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 14,
+    paddingVertical: 13,
+  },
+
+  landingFeatureIcon: {
+    width: 46,
+    height: 46,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  landingFeatureCopy: {
+    flex: 1,
+    gap: 3,
+  },
+
+  landingFeatureTitle: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+
+  landingFeatureDescription: {
+    fontSize: 13,
+    lineHeight: 19,
+  },
+
+  landingActions: {
+    gap: 12,
+    marginTop: 2,
+  },
+
+  landingFootnote: {
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: "center",
+  },
+
   statCard: {
     backgroundColor: theme.surface,
     borderRadius: 20,
