@@ -58,7 +58,7 @@ export default function EditProfile() {
   return (
     <Screen>
       <Title eyebrow="Account details" title="A little about you" />
-      {message && <Notice text={message} />}
+      {!!message && <Notice text={message} />}
       {loading && session ? (
         <Loading />
       ) : !session ? (

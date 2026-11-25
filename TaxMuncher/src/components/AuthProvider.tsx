@@ -39,48 +39,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!isBackendConfigured) {
       return;
     }
-    let mounted = true;
-
-    /*
-      Step 1: On app startup, ask Supabase:
-      "Is there already a logged-in user?"
-
-      This handles cases like:
-      - App reload
-      - App reopened
-      - Token still valid
-    */
-    (async () => {
-      try {
-        const {
-          data: { session: currentSession },
-        } = await supabase.auth.getSession();
-
-        if (!mounted) return;
-        setSession(currentSession ?? null);
-      } catch (err) {
-        console.warn("AuthProvider: getSession failed", err);
-      } finally {
-        if (mounted) setIsLoading(false);
-      }
-    })();
-
-    /*
-      Step 2: Listen for auth changes (login, logout, token refresh).
-
-      This is CRITICAL:
-      - We only want ONE auth listener in the entire app.
-      - This prevents race conditions and duplicated listeners.
-    */
+    // Supabase delivers the restored session and subsequent changes to this listener.
     const { data } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      if (!mounted) return;
-      setSession(newSession ?? null);
+      setSession(newSession);
+      setIsLoading(false);
     });
 
     // Cleanup when app unmounts
     return () => {
-      mounted = false;
-      data?.subscription?.unsubscribe();
+      data.subscription.unsubscribe();
     };
   }, []);
 

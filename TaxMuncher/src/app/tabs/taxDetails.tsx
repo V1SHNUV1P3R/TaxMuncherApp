@@ -203,7 +203,7 @@ export default function TaxDetails() {
             disabled={!rows.length}
             onPress={exportSummary}
           />
-          {message && <Notice text={message} />}
+          {!!message && <Notice text={message} />}
         </>
       )}
     </Screen>

@@ -72,7 +72,7 @@ export default function ReceiptDetails() {
             title={receipt.merchant_name}
             subtitle={receipt.purchase_date + " / " + receipt.category}
           />
-          {receipt.image_url && (
+          {!!receipt.image_url && (
             <Image
               source={{ uri: receipt.image_url }}
               resizeMode="contain"
@@ -98,7 +98,7 @@ export default function ReceiptDetails() {
                 <Heading>{value}</Heading>
               </View>
             ))}
-            {receipt.notes && (
+            {!!receipt.notes && (
               <>
                 <Heading>Notes</Heading>
                 <Label>{receipt.notes}</Label>
@@ -139,7 +139,7 @@ export default function ReceiptDetails() {
           )}
         </>
       ) : null}
-      {error && <Notice text={error} />}
+      {!!error && <Notice text={error} />}
     </Screen>
   );
 }

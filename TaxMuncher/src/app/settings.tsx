@@ -1,4 +1,4 @@
-﻿import { useAuth } from "@/src/components/AuthProvider";
+import { useAuth } from "@/src/components/AuthProvider";
 import MyButton from "@/src/components/MyButton";
 import { useTheme } from "@/src/components/ThemeProvider";
 import {
@@ -21,7 +21,6 @@ export default function Settings() {
   async function signOut() {
     const { error } = await supabase.auth.signOut();
     if (error) setError("Sign out failed. Please try again.");
-    else router.replace("/");
   }
   return (
     <Screen>
@@ -31,27 +30,14 @@ export default function Settings() {
         subtitle="A calmer space for your receipts and records."
       />
       <Card>
-        <Heading>{session ? "Your account" : "Local prototype"}</Heading>
-        <Label muted>
-          {session?.user.email ||
-            "Try the complete receipt workflow without creating an account."}
-        </Label>
-        {session ? (
-          <>
-            <MyButton
-              title="Edit profile"
-              secondary
-              onPress={() => router.push("/editProfile")}
-            />
-            <MyButton title="Sign out" secondary onPress={signOut} />
-          </>
-        ) : (
-          <MyButton
-            title="Sign in or create account"
-            secondary
-            onPress={() => router.push("/signIn")}
-          />
-        )}
+        <Heading>Your account</Heading>
+        <Label muted>{session?.user.email}</Label>
+        <MyButton
+          title="Edit profile"
+          secondary
+          onPress={() => router.push("/editProfile")}
+        />
+        <MyButton title="Sign out" secondary onPress={signOut} />
       </Card>
       <Card>
         <View style={s.between}>

@@ -7,7 +7,6 @@ import {
   Card,
   Label,
   Heading,
-  IconButton,
   Notice,
   Loading,
   money,
@@ -16,6 +15,7 @@ import {
 import { useTheme } from "@/src/components/ThemeProvider";
 import { useReceipts } from "@/src/components/useReceipts";
 import MyButton from "@/src/components/MyButton";
+import AppHeader from "@/src/components/AppHeader";
 import ReceiptCard from "@/src/components/receiptCard";
 import { summarizeReceipts } from "@/src/services/receiptSummary";
 import { addSampleReceipts } from "@/src/services/receiptService";
@@ -25,17 +25,11 @@ export default function Overview() {
   const { tax, spent } = summarizeReceipts(receipts);
   return (
     <Screen>
+      <AppHeader />
       <Title
         eyebrow="TaxMuncher / your receipt companion"
         title={"Small receipts.\nBigger picture."}
         subtitle="A little more organized. A lot more tax-ready."
-        action={
-          <IconButton
-            name="settings-outline"
-            label="Settings"
-            onPress={() => router.push("/settings")}
-          />
-        }
       />
       {isDemo && (
         <Notice text="Local prototype: receipts stay on this device. Sign in from Settings to use your account." />

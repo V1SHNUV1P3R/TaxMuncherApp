@@ -6,7 +6,7 @@ import { Loading } from "@/src/components/ui";
 import { AuthProvider, useAuth } from "@/src/components/AuthProvider";
 function Navigation() {
   const { theme, themeType } = useTheme();
-  const { isLoading } = useAuth();
+  const { session, isLoading } = useAuth();
   if (isLoading) return <Loading />;
   return (
     <>
@@ -21,16 +21,18 @@ function Navigation() {
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="tabs" options={{ headerShown: false }} />
-        <Stack.Screen name="addReceipt" options={{ title: "New receipt" }} />
-        <Stack.Screen
-          name="receiptDetails"
-          options={{ title: "Receipt details" }}
-        />
-        <Stack.Screen name="editReceipt" options={{ title: "Edit receipt" }} />
-        <Stack.Screen name="editProfile" options={{ title: "Your profile" }} />
-        <Stack.Screen name="settings" options={{ title: "Settings" }} />
-        <Stack.Screen name="signIn" options={{ title: "Account" }} />
+        <Stack.Screen name="signIn" options={{ headerShown: false }} />
+        <Stack.Protected guard={!!session?.user}>
+          <Stack.Screen name="tabs" options={{ headerShown: false }} />
+          <Stack.Screen name="addReceipt" options={{ title: "New receipt" }} />
+          <Stack.Screen
+            name="receiptDetails"
+            options={{ title: "Receipt details" }}
+          />
+          <Stack.Screen name="editReceipt" options={{ title: "Edit receipt" }} />
+          <Stack.Screen name="editProfile" options={{ title: "Your profile" }} />
+          <Stack.Screen name="settings" options={{ title: "Settings" }} />
+        </Stack.Protected>
       </Stack>
     </>
   );

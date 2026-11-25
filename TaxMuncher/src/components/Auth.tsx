@@ -1,24 +1,20 @@
-import { useEffect, useState } from "react";
-import { router } from "expo-router";
-import { Screen, Title, Card, Label, Notice } from "./ui";
+import { useState } from "react";
+import { Card, Label, Notice } from "./ui";
 import TextField from "./TextField";
 import MyButton from "./MyButton";
-import { useAuth } from "./AuthProvider";
 import { supabase, isBackendConfigured } from "@/utils/supabase";
 export default function Auth() {
-  const { session } = useAuth();
+  const [mode, setMode] = useState<"signUp" | "signIn">("signUp");
+  const signingUp = mode === "signUp";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  useEffect(() => {
-    if (session) router.replace("/tabs/profile");
-  }, [session]);
-  async function submit(signUp: boolean) {
+  async function submit() {
     setMessage("");
     if (!isBackendConfigured) {
       setMessage(
-        "Account services are not configured. You can continue with the local prototype.",
+        "Account services are not configured. Sign-in is currently unavailable.",
       );
       return;
     }
@@ -26,9 +22,9 @@ export default function Auth() {
       setMessage("Enter a valid email address.");
       return;
     }
-    if (!password || (signUp && password.length < 8)) {
+    if (!password || (signingUp && password.length < 8)) {
       setMessage(
-        signUp
+        signingUp
           ? "Use a password with at least 8 characters."
           : "Enter your password.",
       );
@@ -36,67 +32,89 @@ export default function Auth() {
     }
     setBusy(true);
     try {
-      const { data, error } = signUp
-        ? await supabase.auth.signUp({ email: email.trim(), password })
-        : await supabase.auth.signInWithPassword({
-            email: email.trim(),
-            password,
-          });
+      const credentials = { email: email.trim(), password };
+      const { data, error } = signingUp
+        ? await supabase.auth.signUp(credentials)
+        : await supabase.auth.signInWithPassword(credentials);
+      if (
+        signingUp &&
+        (error?.code === "user_already_exists" ||
+          error?.code === "email_exists")
+      ) {
+        setMode("signIn");
+        setPassword("");
+        setMessage(
+          "This email is already registered. Sign in with your existing password.",
+        );
+        return;
+      }
+      if (!signingUp && error?.code === "user_not_found") {
+        setMode("signUp");
+        setMessage("Create an account with this email before signing in.");
+        return;
+      }
+      if (!signingUp && error?.code === "invalid_credentials") {
+        setMessage(
+          "Check your email and password and try again. If this is your first visit, choose Sign up to create an account.",
+        );
+        return;
+      }
       if (error) throw error;
-      if (data.session) router.replace("/tabs/profile");
-      else
-        setMessage("Check your email to confirm your account, then sign in.");
+      if (signingUp && !data.session) {
+        setMode("signIn");
+        setPassword("");
+        setMessage(
+          "If you already have an account, sign in with your existing password. For a new account, check your email to confirm it before signing in.",
+        );
+      }
     } catch (e) {
-      setMessage(
-        e instanceof Error ? e.message : "Sign in failed. Please try again.",
-      );
+      setMessage(e instanceof Error ? e.message : "Please try again.");
     } finally {
       setBusy(false);
     }
   }
   return (
-    <Screen>
-      <Title
-        eyebrow="Welcome to TaxMuncher"
-        title="Less paper.\nMore peace of mind."
-        subtitle="Sign in to keep your receipt records with your account."
-      />
+    <Card>
       {!!message && <Notice text={message} />}
-      <Card>
-        <TextField
-          placeholder="Email address"
-          value={email}
-          onChangeText={setEmail}
-          autoCapitalize="none"
-          keyboardType="email-address"
-          autoComplete="email"
-        />
-        <TextField
-          placeholder="Password"
-          value={password}
-          onChangeText={setPassword}
-          isPassword
-        />
-        <Label muted>
-          New accounts need a password with at least 8 characters.
-        </Label>
-        <MyButton
-          title={busy ? "Please wait..." : "Sign in"}
-          disabled={busy}
-          onPress={() => submit(false)}
-        />
-        <MyButton
-          title="Create an account"
-          secondary
-          disabled={busy}
-          onPress={() => submit(true)}
-        />
-      </Card>
-      <MyButton
-        title="Continue with local prototype"
-        secondary
-        onPress={() => router.replace("/tabs/profile")}
+      <TextField
+        placeholder="Email address"
+        value={email}
+        editable={!busy}
+        onChangeText={setEmail}
+        autoCapitalize="none"
+        keyboardType="email-address"
+        autoComplete="email"
       />
-    </Screen>
+      <TextField
+        placeholder="Password"
+        value={password}
+        editable={!busy}
+        autoComplete={signingUp ? "new-password" : "current-password"}
+        onChangeText={setPassword}
+        isPassword
+      />
+      {signingUp && (
+        <Label muted>
+          New here? Sign up with an email address and a password of at least 8
+          characters.
+        </Label>
+      )}
+      <MyButton
+        title={busy ? "Please wait..." : signingUp ? "Sign up" : "Sign in"}
+        disabled={busy}
+        onPress={submit}
+      />
+      <MyButton
+        title={
+          signingUp ? "Already have an account? Sign in" : "New here? Sign up"
+        }
+        secondary
+        disabled={busy}
+        onPress={() => {
+          setMode(signingUp ? "signIn" : "signUp");
+          setMessage("");
+        }}
+      />
+    </Card>
   );
 }
