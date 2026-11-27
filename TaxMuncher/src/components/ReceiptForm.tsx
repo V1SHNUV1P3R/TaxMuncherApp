@@ -136,7 +136,7 @@ export default function ReceiptForm({ id }: { id?: string }) {
     setError("");
     try {
       if (ai) {
-        const r = await analyzeReceipt(image);
+        const r = await analyzeReceipt(image, session?.access_token);
         setForm({
           ...r,
           subtotal: String(r.subtotal),
@@ -330,7 +330,7 @@ export default function ReceiptForm({ id }: { id?: string }) {
               disabled={busy || saving}
               onPress={() => extract(false)}
             />
-            {AI_ENABLED && (
+            {AI_ENABLED && session && (
               <MyButton
                 title="Fill with AI"
                 disabled={busy || saving}
@@ -341,8 +341,10 @@ export default function ReceiptForm({ id }: { id?: string }) {
         )}
         <Label muted>
           {AI_ENABLED
-            ? "Review AI results before saving."
-            : "AI auto-fill is prepared and currently disconnected. Manual entry is ready."}
+            ? session
+              ? "AI auto-fill sends your photo to Google Gemini. Review the results before saving."
+              : "Sign in to use AI auto-fill."
+            : "You can enter receipt details manually."}
         </Label>
         {!!raw && (
           <Card accent>

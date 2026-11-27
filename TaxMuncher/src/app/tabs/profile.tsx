@@ -111,6 +111,7 @@ export default function Overview() {
           AI-assisted extraction is prepared for your next step.
         </Label>
         <MyButton
+          color={theme.secondary}
           title="Capture your next receipt"
           secondary
           onPress={() => router.push("/addReceipt")}

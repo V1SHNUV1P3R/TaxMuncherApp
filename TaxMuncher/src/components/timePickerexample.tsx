@@ -11,7 +11,7 @@ export default function TimePickerExample() {
     <Host matchContents>
       <DateTimePicker
         onDateSelected={(date) => {
-          setSelectedDate(date);
+          if (date) setSelectedDate(date);
         }}
         displayedComponents="hourAndMinute"
         initialDate={selectedDate.toISOString()}

@@ -5,6 +5,9 @@ import { resolve } from "node:path";
 import cors from "cors"; // Middleware that allows your Expo frontend to talk to this backend without getting blocked
 import dotenv from "dotenv"; // Loads secret variables from your .env file into process.env
 import express from "express"; // Web framework that handles HTTP requests and API routes
+import multer from "multer";
+import { rateLimit } from "express-rate-limit";
+import { extractWithGemini } from "../utils/gemini";
 
 // ============================================================================
 // 2. CONFIGURATION & MIDDLEWARE: Prepare the server before handling routes
@@ -77,6 +80,118 @@ app.get("/api/health", async (_req, res) => {
     });
   }
 });
+
+// ============================================================================
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 8 * 1024 * 1024, files: 1, fields: 0 },
+}).single("image");
+
+function receiptMimeType(image: Buffer) {
+  if (image.subarray(0, 3).toString("hex") === "ffd8ff") return "image/jpeg";
+  if (image.subarray(0, 8).toString("hex") === "89504e470d0a1a0a")
+    return "image/png";
+  if (
+    image.toString("ascii", 0, 4) === "RIFF" &&
+    image.toString("ascii", 8, 12) === "WEBP"
+  )
+    return "image/webp";
+  if (
+    image.toString("ascii", 4, 8) === "ftyp" &&
+    ["heic", "heix", "hevc", "hevx"].includes(image.toString("ascii", 8, 12))
+  )
+    return "image/heic";
+}
+
+app.post(
+  "/api/receipts/analyze",
+  rateLimit({
+    windowMs: 60_000,
+    limit: 10,
+    standardHeaders: "draft-8",
+    message: { error: "Too many receipt requests. Try again in a minute." },
+  }),
+  async (req, res, next) => {
+    const authorization = req.get("authorization") ?? "";
+    if (!/^Bearer [\w.-]+$/i.test(authorization)) {
+      res.status(401).json({ error: "Sign in to analyze receipts." });
+      return;
+    }
+    try {
+      const authUrl = new URL(
+        `${process.env.SUPABASE_URL?.replace(/\/$/, "")}/auth/v1/user`,
+      );
+      const response = await fetch(authUrl, {
+        headers: { apikey: process.env.SUPABASE_KEY ?? "", authorization },
+        redirect: "error",
+        signal: AbortSignal.timeout(5000),
+      });
+      await response.body?.cancel();
+      if (!response.ok) {
+        if (response.status !== 401 && response.status !== 403)
+          throw new Error("Supabase Auth unavailable");
+        res.status(401).json({ error: "Sign in again to analyze receipts." });
+        return;
+      }
+    } catch {
+      res
+        .status(503)
+        .json({ error: "Receipt sign-in verification is unavailable." });
+      return;
+    }
+    next();
+  },
+  (req, res, next) => {
+    upload(req, res, (error) => {
+      if (error) {
+        res.status(error.code === "LIMIT_FILE_SIZE" ? 413 : 400).json({
+          error: "Upload one receipt image up to 8 MB.",
+        });
+        return;
+      }
+      next();
+    });
+  },
+  async (req, res) => {
+    const image = req.file?.buffer;
+    if (!image?.length) {
+      res.status(400).json({ error: "A receipt image is required." });
+      return;
+    }
+    const mimeType = receiptMimeType(image);
+    if (!mimeType) {
+      res
+        .status(415)
+        .json({ error: "Choose a JPEG, PNG, WebP, or HEIC image." });
+      return;
+    }
+    const apiKey = process.env.GEMINI_API_KEY?.trim();
+    const model = process.env.GEMINI_MODEL?.trim();
+    if (!apiKey || !model) {
+      res
+        .status(503)
+        .json({ error: "Receipt analysis is awaiting Gemini configuration." });
+      return;
+    }
+    try {
+      res.json(
+        await extractWithGemini({
+          apiKey,
+          model,
+          mimeType,
+          data: image.toString("base64"),
+        }),
+      );
+    } catch {
+      res
+        .status(502)
+        .json({
+          error:
+            "Gemini could not analyze this receipt. Try again or enter its details manually.",
+        });
+    }
+  },
+);
 
 // ============================================================================
 // 4. START THE SERVER: Listen for incoming traffic

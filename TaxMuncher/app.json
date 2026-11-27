@@ -15,7 +15,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#FBF7F1"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.anonymous.TaxMuncher"
     },
     "web": {
       "output": "static",
@@ -31,7 +32,6 @@
           "imageWidth": 76
         }
       ],
-      "@react-native-community/datetimepicker",
       [
         "expo-image-picker",
         {

@@ -214,4 +214,12 @@ export const s = StyleSheet.create({
     gap: 12,
   },
   row: { flexDirection: "row", alignItems: "center", gap: 12 },
+  //  What is s? s is a style helper that provides predefined styles
+  //  for common flexbox layouts. It allows you to quickly create 
+  //  responsive and flexible layouts without writing custom styles 
+  //  for each component. For example, s.between creates a row layout 
+  //  with space between the items, while s.row creates a simple row layout
+  //   with items aligned in the center. You can use these styles to build 
+  //  consistent and maintainable UI components across your application.
+  //  Dont delete s.
 });

@@ -1,18 +1,17 @@
 import { Platform } from "react-native";
 import Constants from "expo-constants";
 import { validateAnalysis, ReceiptAnalysis } from "./receiptValidation";
-// AI is intentionally disconnected until integration is requested. No key is read.
-export const AI_ENABLED = false;
-export async function analyzeReceipt(uri: string): Promise<ReceiptAnalysis> {
-  if (!AI_ENABLED)
-    throw new Error(
-      "AI integration is not connected yet. You can still save a receipt manually.",
-    );
-  const endpoint = process.env.EXPO_PUBLIC_RECEIPT_AI_URL;
+const endpoint = process.env.EXPO_PUBLIC_RECEIPT_AI_URL;
+export const AI_ENABLED = Boolean(endpoint);
+export async function analyzeReceipt(
+  uri: string,
+  accessToken?: string,
+): Promise<ReceiptAnalysis> {
   if (!endpoint)
     throw new Error("Set up the receipt analysis server before enabling AI.");
+  if (!accessToken) throw new Error("Sign in to analyze receipts with AI.");
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 30000);
+  const timer = setTimeout(() => controller.abort(), 45000);
   try {
     const form = new FormData();
     if (Platform.OS === "web") {
@@ -27,13 +26,18 @@ export async function analyzeReceipt(uri: string): Promise<ReceiptAnalysis> {
     }
     const response = await fetch(endpoint, {
       method: "POST",
+      headers: { Authorization: `Bearer ${accessToken}` },
       body: form,
       signal: controller.signal,
     });
-    if (!response.ok)
+    if (!response.ok) {
+      const payload = await response.json().catch(() => null);
       throw new Error(
-        "Receipt analysis is unavailable. Please enter the details manually.",
+        typeof payload?.error === "string"
+          ? payload.error
+          : "Receipt analysis is unavailable. Please enter the details manually.",
       );
+    }
     return validateAnalysis(await response.json());
   } finally {
     clearTimeout(timer);

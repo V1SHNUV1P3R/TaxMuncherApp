@@ -1,4 +1,5 @@
-import { useAuth } from "@/src/components/AuthProvider";
+﻿import { useAuth } from "@/src/components/AuthProvider";
+import { AI_ENABLED } from "@/src/services/receiptAIService";
 import MyButton from "@/src/components/MyButton";
 import { useTheme } from "@/src/components/ThemeProvider";
 import {
@@ -6,7 +7,11 @@ import {
   Heading,
   Label,
   Notice,
-  s,
+  s, // This is a style helper for flexbox layouts
+    // How does it work? It provides a set of predefined styles for 
+    // common flexbox layouts, such as row, column, center, between, etc. 
+    // You can use these styles to quickly create responsive and flexible 
+    // layouts without writing custom styles for each component.
   Screen,
   Title,
 } from "@/src/components/ui";
@@ -62,10 +67,10 @@ export default function Settings() {
         <Heading>Receipt intelligence</Heading>
         <Label muted>
           On-device text recognition is available in a native development build.
-          Google AI Studio integration is prepared and remains disconnected
-          until setup is complete.
+          {AI_ENABLED
+            ? "Signed-in users can send receipt photos to Google Gemini for auto-fill."
+            : "AI auto-fill is unavailable until a receipt analysis URL is configured."}
         </Label>
-        <Notice text="Your AI key and .env have not been changed. No live AI requests are made." />
       </Card>
       <Card>
         <Heading>Your data, clearly labeled</Heading>

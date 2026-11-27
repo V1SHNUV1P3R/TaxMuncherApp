@@ -23,8 +23,8 @@ export default function TabsLayout() {
         name="profile"
         options={{
           title: "Overview",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="grid-outline" color={color} size={23} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name="grid-outline" color={focused ? theme.primary : theme.secondaryText} size={23} />
           ),
         }}
       />
@@ -32,8 +32,8 @@ export default function TabsLayout() {
         name="receiptList"
         options={{
           title: "Receipts",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="receipt-outline" color={color} size={23} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons name="receipt-outline" color={focused ? theme.primary : theme.secondaryText} size={23} />
           ),
         }}
       />
@@ -41,8 +41,12 @@ export default function TabsLayout() {
         name="taxDetails"
         options={{
           title: "Tax summary",
-          tabBarIcon: ({ color }) => (
-            <Ionicons name="pie-chart-outline" color={color} size={23} />
+          tabBarIcon: ({ focused }) => (
+            <Ionicons
+              name="pie-chart-outline"
+              color={focused ? theme.primary : theme.secondaryText}
+              size={23}
+            />
           ),
         }}
       />

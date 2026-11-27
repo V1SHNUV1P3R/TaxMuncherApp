@@ -1,6 +1,6 @@
-﻿# TaxMuncher
+# TaxMuncher
 
-A mobile receipt and sales tax tracking prototype built with Expo SDK 57. The interface uses rust `#A55226`, orange `#D07335`, amber `#DB8A45`, and sand `#ECB36F`, with warm light and dark appearances.
+A mobile receipt and sales tax tracking prototype built with Expo SDK 58. The interface uses rust `#A55226`, orange `#D07335`, amber `#DB8A45`, and sand `#ECB36F`, with warm light and dark appearances.
 
 ## Run
 
@@ -26,29 +26,14 @@ npx expo run:ios
 
 These commands generate native projects and require the relevant Android/iOS tooling. Expo Go and web support manual entry and photo attachment; on-device OCR requires a custom native build. Device camera permissions are configured through the Expo ImagePicker plugin. Camera/OCR behavior still needs verification on physical devices.
 
-## AI integration is prepared, not activated
+## Gemini receipt auto-fill
 
-`.env` was left untouched. The prototype does not initialize Gemini, read an AI credential at startup, or send receipts to Google. `AI_ENABLED` is deliberately `false` in `src/services/receiptAIService.ts`.
+The Expo app sends the receipt photo to the Express backend when a signed-in user selects **Fill with AI**. The backend verifies the Supabase access token, rate-limits requests, accepts one image up to 8 MB, and returns validated receipt fields from Gemini for review.
 
-The future app-facing contract is an authenticated analysis endpoint accepting multipart `image` and returning:
-
-```json
-{
-  "merchant_name": "Shop",
-  "purchase_date": "2026-10-30",
-  "subtotal": 20,
-  "sales_tax": 1.6,
-  "total": 21.6,
-  "payment_method": "Visa",
-  "category": "Shopping",
-  "notes": "",
-  "confidence": 95
-}
-```
-
-`utils/gemini.ts` contains an unused server-side Google GenAI adapter with structured output and runtime validation. A server supplies its own API key and supported model explicitly; the mobile app never imports this adapter. When integrating later, implement authentication, upload limits and rate limiting on the server, connect `EXPO_PUBLIC_RECEIPT_AI_URL`, then enable the UI flag. Keep the AI Studio credential on that server. Public Expo environment variables are compiled into client bundles. Existing environment files have not been edited.
-
-The UI supports analysis progress, failure fallback, confidence messaging, and manual review. No live AI accuracy or connectivity test has been performed.
+1. Set `GEMINI_API_KEY` and `GEMINI_MODEL` in `backend/.env`. Use a Gemini model that supports image input and structured output, such as `gemini-3.8-flash`. Keep the API key in the backend environment.
+2. Run `npm run backend` from the repo root.
+3. Set `EXPO_PUBLIC_RECEIPT_AI_URL=http://localhost:3000/api/receipts/analyze` in the root `.env.local` for local web testing. On a physical phone, replace `localhost` with the backend computer’s LAN IP. Restart Expo after changing the URL. Use HTTPS for a deployed backend.
+4. Sign in, attach a sample receipt, and select **Fill with AI**. Review the extracted merchant, date, and amounts before saving.
 
 ## Account backend
 
@@ -72,9 +57,9 @@ npx expo export --platform all
 
 Tests cover cent-based totals, year/category filtering, changes to totals after edits/deletion, invalid currency/date input, and malformed AI output. Bundle export verifies compilation, not physical-device camera/OCR, live authentication, database permissions, or live AI behavior.
 
-Reference: [Expo SDK 57](https://docs.expo.dev/versions/v57.0.0/), [Expo Router migration](https://docs.expo.dev/router/migrate/sdk-55-to-56/), [ML Kit wrapper](https://github.com/a7medev/react-native-ml-kit), [Gemini structured output](https://ai.google.dev/gemini-api/docs/structured-output).
+Reference: [Expo SDK 58](https://docs.expo.dev/versions/v58.0.0/), [Expo Router migration](https://docs.expo.dev/router/migrate/sdk-55-to-56/), [ML Kit wrapper](https://github.com/a7medev/react-native-ml-kit), [Gemini structured output](https://ai.google.dev/gemini-api/docs/structured-output).
 
-## Verification from this implementation
+## Previous verification on Expo SDK 57
 
 - `npm run typecheck`: passed.
 - `npm run lint`: passed.

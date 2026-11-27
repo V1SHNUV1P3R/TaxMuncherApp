@@ -3,8 +3,7 @@ import {
   CATEGORIES,
   validateAnalysis,
 } from "../src/services/receiptValidation";
-// Server-side adapter for the next integration step. Nothing calls this from the
-// app, and credentials are supplied explicitly by a future authenticated server.
+// The authenticated receipt endpoint supplies the server's Gemini credentials.
 export async function extractWithGemini({
   apiKey,
   model,
